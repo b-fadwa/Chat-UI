@@ -2,7 +2,7 @@
   "app_id": "qodly_59dd07b3dcbff8b00b4d",
   "name": "chatbox",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "author": {
     "name": "Qodly Team",
@@ -39,6 +39,7 @@
     "@ws-ui/craftjs-utils": "0.2.3",
     "@ws-ui/webform-editor": "0.3.59",
     "react": "^17.0.2",
+    "react-chat-elements": "^12.0.0",
     "react-dom": "^17.0.2"
   },
   "devDependencies": {
