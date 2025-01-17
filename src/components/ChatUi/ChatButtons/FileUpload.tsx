@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { MdOutlineFileUpload } from 'react-icons/md';
 
-const FileUpload = () => {
+const FileUpload = ({ handleFileUpload }: { handleFileUpload: (file: File) => void }) => {
   const fileInputRef = useRef<any>(null);
 
   const handleButtonClick = () => {
@@ -14,18 +14,15 @@ const FileUpload = () => {
     const file = e.target.files?.[0];
     if (file) {
       console.log('Selected file:', file.name);
+      handleFileUpload(file);
+      console.log(file.name);
     }
   };
 
   return (
     <div>
-      <input
-        type="file"
-        className="hidden bg-red-500 p-4"
-        ref={fileInputRef}
-        onChange={handleFileChange}
-      />
-      <button onClick={handleButtonClick}>
+      <input type="file" className="hidden" ref={fileInputRef} onChange={handleFileChange} />
+      <button onClick={handleButtonClick} className="p-4">
         <MdOutlineFileUpload />
       </button>
     </div>
