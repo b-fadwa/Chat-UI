@@ -4,48 +4,75 @@ import { MdOutlinePoll } from 'react-icons/md';
 import { MdKeyboardVoice } from 'react-icons/md';
 import { FaPlusCircle } from 'react-icons/fa';
 
-const DropDown = () => {
-  // Buttons
+interface DropDownProps {
+  onOptionSelect: (option: string) => void;
+  onAudioClick: () => void;
+  onCameraClick: () => void;
+}
+
+const DropDown = ({ onOptionSelect, onAudioClick, onCameraClick }: DropDownProps) => {
+
+  const items = [
+    {
+      text: 'Camera',
+      icon: {
+        float: 'left',
+        size: 15,
+        component: <FaCamera />,
+      },
+    },
+    {
+      text: 'Create a poll',
+      icon: {
+        float: 'left',
+        size: 15,
+        component: <MdOutlinePoll />,
+      },
+    },
+    {
+      text: 'Send a voice clip',
+      icon: {
+        float: 'left',
+        size: 15,
+        component: <MdKeyboardVoice />,
+      },
+    },
+  ];
+
   return (
     <div className="w-fit">
       <Dropdown
         {...({
+          style: {},
+          className: 'dropdown-css bg-gray-100 p-1 rounded',
+          onClick: (e: any) => console.log('Dropdown clicked', e),
           buttonProps: {
+            backgroundColor: '#F3F4F6',
             icon: {
               float: 'left',
-              component: <FaPlusCircle />,
+              component: <FaPlusCircle className="bg-gray-100 text-gray-600" />,
             },
           },
           onSelect: (e: any) => {
-            console.log(e);
+            console.log('onSelect event (index):', e);
+            const selectedItem = items[e];
+
+            if (selectedItem) {
+              onOptionSelect(selectedItem.text);
+              console.log('Selected Item:', selectedItem.text);
+
+              if (selectedItem.text === 'Camera') {
+                onCameraClick();
+              } else if (selectedItem.text === 'Send a voice clip') {
+                onAudioClick();
+              }
+            } else {
+              console.error('Selected item not found:', e);
+            }
           },
-          items: [
-            {
-              text: 'Camera',
-              icon: {
-                float: 'left',
-                size: 15,
-                component: <FaCamera />,
-              },
-            },
-            {
-              text: 'Create a poll',
-              icon: {
-                float: 'left',
-                size: 15,
-                component: <MdOutlinePoll />,
-              },
-            },
-            {
-              text: 'Send a voice clip',
-              icon: {
-                float: 'left',
-                size: 15,
-                component: <MdKeyboardVoice />,
-              },
-            },
-          ],
-        } as any)}
+
+          items: items,
+        })}
       />
     </div>
   );

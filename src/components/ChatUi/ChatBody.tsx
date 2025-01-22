@@ -13,9 +13,14 @@ const ChatBody: FC<ChatBodyProps> = ({ data }) => {
   data = data.map((item: any) => {
     parsedItem = JSON.parse(item);
     isSender = parsedItem.sender ? parsedItem.sender.startsWith('localhost') : true; //to be updated
-
     //nothing
-    if (parsedItem.content == '' && !parsedItem.file && !parsedItem.audio && !parsedItem.image) {
+    if (
+      (parsedItem.content == '') &&
+      (parsedItem.sender != '') &&
+      !parsedItem.file &&
+      !parsedItem.audio &&
+      !parsedItem.image
+    ) {
       return null;
     }
     //text
@@ -60,9 +65,6 @@ const ChatBody: FC<ChatBodyProps> = ({ data }) => {
         },
         position: isSender ? 'right' : 'left',
       };
-    }
-    //video object
-    if (parsedItem.video) {
     }
     //picture object
     if (parsedItem.image) {

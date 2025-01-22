@@ -18,7 +18,7 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
     console.log('socket useeffect executeeed!!!');
 
     if (!socketAddress && socketAddress !== '') return;
-    // Create a WebSocket connection
+
     const socket = new WebSocket(socketAddress);
     //testing purpose only
     if (socket.readyState === WebSocket.OPEN) {
