@@ -18,19 +18,23 @@ const ChatUi: FC<IChatUiProps> = ({
   const [value, setValue] = useState<any>();
 
   const [message, setMessage] = useState(null);
+  const [messages, setMessages] = useState<any>([]);
   const [connectionStatus, setConnectionStatus] = useState('Connecting...');
 
   useEffect(() => {
     if (!socketAddress && socketAddress !== '') return;
-    // Create a WebSocket connection
+
     const socket = new WebSocket(socketAddress);
     socket.onopen = () => {
       setConnectionStatus('Connected');
       console.log('WebSocket connection established');
       setValue(socket);
     };
+
     socket.onmessage = (event) => {
-      setMessage((prev) => prev + event.data);
+      console.log('Received message:', event.data);
+      const datamessages = event.data.split('\n').filter((msg: any) => msg.trim() !== '');
+      setMessages((prev: any) => [...prev, ...datamessages]);
     };
 
     socket.onclose = () => {
@@ -38,18 +42,16 @@ const ChatUi: FC<IChatUiProps> = ({
       console.log('WebSocket connection closed');
     };
 
-    // Event listener for errors
     socket.onerror = (error) => {
       console.error('WebSocket error', error);
     };
 
     const getMessage = () => {
-      socket.addEventListener('message', (event) => {});
+      socket.addEventListener('message', (event) => { });
     };
 
     getMessage();
 
-    // Cleanup on component unmount
     return () => {
       socket.removeEventListener('message', getMessage);
       socket.close();
@@ -59,10 +61,8 @@ const ChatUi: FC<IChatUiProps> = ({
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
       <ChatHeader />
-      <ChatBody key={message} position={position} data={message} />
-      <ChatFooter />
-      <button onClick={() => value.send('Hello Qodly')}>Send</button>
-      {message}
+      <ChatBody key={message} position={position} data={messages} />
+      <ChatFooter socket={value} />
     </div>
   );
 };
