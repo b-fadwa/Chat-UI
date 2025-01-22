@@ -12,22 +12,30 @@ const InputArea = ({ handleInputChange }: { handleInputChange: (message: string)
     handleInputChange(value);
   };
 
-  console.log('from child', { inputValue });
+  const handleEmojiClick = (e: any) => {
+    const updatedValue = inputValue + e.emoji;
+    setInputValue(updatedValue);
+    handleInputChange(updatedValue);
+  };
 
   return (
     <div className="chat-input-area flex flex-row border-2 border-gray-100 p-2 rounded">
       <input
         type="text"
-        className="focus:outline-none focus:border-0	"
+        className="focus:outline-none focus:border-0"
         placeholder="Type your message..."
         onChange={handleChange}
         value={inputValue}
       />
-      <button onClick={() => setIsEmojiPickerVisible(!isEmojiPickerVisible)}>
+      <button
+        type="button"
+        className="relative"
+        onClick={() => setIsEmojiPickerVisible(!isEmojiPickerVisible)}
+      >
         <MdEmojiEmotions className="text-xl" />
         {isEmojiPickerVisible && (
-          <div className={`emoji-picker absolute z-10`}>
-            <EmojiPicker onEmojiClick={(e) => setInputValue(inputValue + e.emoji)} />
+          <div className="emoji-picker absolute z-10">
+            <EmojiPicker onEmojiClick={handleEmojiClick} />
           </div>
         )}
       </button>
