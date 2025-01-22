@@ -11,7 +11,6 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
   const { connect } = useRenderer();
   const [socket, setSocket] = useState<any>();
   const [message, setMessage] = useState<any>('');
-  const [uploadedFile, setUploadedFile] = useState<any>(null);
   const [connectionStatus, setConnectionStatus] = useState('Connecting...');
   const [messages, setMessages] = useState<any>([]);
 
@@ -56,34 +55,13 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
     };
   }, [socketAddress]);
 
-  //input change
-  const handleInputChange = (newMessage: string) => {
-    console.log('from input', { newMessage });
-    setMessage(newMessage);
-    // setMessages((prevMessages: any) => [...prevMessages, { content: message }]);
-  };
-
-  //file upload
-  const handleFileUpload = (file: File) => {
-    const fileMessage = { text: 'File attached: ' + file.name, file };
-    setUploadedFile(file);
-    setMessage(fileMessage);
-    setMessages((prevMessages: any) => [...prevMessages, { content: fileMessage }]);
-  };
-
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
       <ChatHeader />
       <ChatBody key={messages} data={messages} />
       <div className="flex flex-row">
-        <ChatFooter
-          socket={socket}
-          sentMessage={message}
-          handleInputChange={(e: any) => handleInputChange(e)}
-          handleFileUpload={(file: File) => handleFileUpload(file)}
-        />
+        <ChatFooter socket={socket} />
       </div>
-      <div>{JSON.stringify(message)}</div>
     </div>
   );
 };
