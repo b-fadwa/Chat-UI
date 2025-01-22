@@ -22,8 +22,8 @@ const FileUpload = ({ handleFileUpload }: { handleFileUpload: (file: File) => vo
   return (
     <div>
       <input type="file" className="hidden" ref={fileInputRef} onChange={handleFileChange} />
-      <button onClick={handleButtonClick} className="p-4">
-        <MdOutlineFileUpload />
+      <button onClick={handleButtonClick} className="p-4 rounded bg-gray-100">
+        <MdOutlineFileUpload className='text-xl'/>
       </button>
     </div>
   );
