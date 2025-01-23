@@ -5,13 +5,15 @@ interface SendButtonProps {
   socket: WebSocket;
   message: string;
   sentFile: File;
+  sentImage: string;
 }
 
-const SendButton: FC<SendButtonProps> = ({ socket, message, sentFile }) => {
+const SendButton: FC<SendButtonProps> = ({ socket, message, sentFile, sentImage }) => {
   const sendMessage = () => {
-    if (message && socket) {
-      if (sentFile) { 
-        const reader = new FileReader();  
+    if (socket) {
+      if (sentFile) {
+        console.log('Sending file:', sentFile);
+        const reader = new FileReader();
         reader.onload = () => {
           const base64FileContent = reader.result?.toString();
           const payload = {
@@ -20,19 +22,20 @@ const SendButton: FC<SendButtonProps> = ({ socket, message, sentFile }) => {
             fileType: sentFile.type,
             fileContent: base64FileContent, // Add Base64-encoded content
           };
-  
-          socket.send(JSON.stringify({file:payload.fileContent}));
-          console.log('File sent as Base64:', payload);
-        };  
+          socket.send(JSON.stringify({ file: payload.fileContent }));
+        };
         reader.readAsDataURL(sentFile); // Read the file as a Base64 data URL
-      } else {
-        console.log('Message sent:', message);        
+      }
+      if (sentImage != '') {
+        console.log('Sending image here:', sentImage);
+        socket.send(JSON.stringify({ image: sentImage }));
+      }
+      if (message) {
+        console.log('Message sent:', message);
         socket.send(JSON.stringify({ content: message }));
       }
     }
   };
-  
-  
 
   return (
     <button className="p-4 rounded bg-gray-100" onClick={sendMessage}>

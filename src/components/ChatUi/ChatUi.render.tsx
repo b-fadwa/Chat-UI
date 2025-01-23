@@ -10,7 +10,6 @@ import ChatFooter from './ChatFooter';
 const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames = [] }) => {
   const { connect } = useRenderer();
   const [socket, setSocket] = useState<any>();
-  const [message, setMessage] = useState<any>('');
   const [connectionStatus, setConnectionStatus] = useState('Connecting...');
   const [messages, setMessages] = useState<any>([]);
 
@@ -34,7 +33,6 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
     };
     //
     socket.onmessage = (event) => {
-      console.log('Received message:', event.data);
       const datamessages = event.data.split('\n').filter((msg: any) => msg.trim() !== '');
       setMessages((prev: any) => [...prev, ...datamessages]);
     };
@@ -59,9 +57,7 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
     <div ref={connect} style={style} className={cn(className, classNames)}>
       <ChatHeader />
       <ChatBody key={messages} data={messages} />
-      <div className="flex flex-row">
-        <ChatFooter socket={socket} />
-      </div>
+      <ChatFooter socket={socket} />
     </div>
   );
 };

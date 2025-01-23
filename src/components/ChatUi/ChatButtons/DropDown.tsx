@@ -44,13 +44,14 @@ const DropDown = ({ onOptionSelect, onAudioClick, onCameraClick }: DropDownProps
       <Dropdown
         {...({
           style: {},
-          className: 'dropdown-css bg-gray-100 p-1 rounded',
+          className: 'dropdown-css bg-gray-100 p-2 flex items-center rounded h-full',
           onClick: (e: any) => console.log('Dropdown clicked', e),
           buttonProps: {
             backgroundColor: '#F3F4F6',
             icon: {
               float: 'left',
               component: <FaPlusCircle className="bg-gray-100 text-gray-600" />,
+              size:15,
             },
           },
           onSelect: (e: any) => {

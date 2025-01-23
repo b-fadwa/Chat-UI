@@ -14,7 +14,7 @@ const ChatFooter: FC<ChatFooter> = ({ socket }) => {
   // buttons
   const [message, setMessage] = useState<any>('');
   const [uploadedFile, setUploadedFile] = useState<any>(null);
-  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [imageUri, setImageUri] = useState<string>('');
   const [audioUri, setAudioUri] = useState<string | null>(null);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [showAudioRecorder, setShowAudioRecorder] = useState<boolean>(false);
@@ -24,14 +24,11 @@ const ChatFooter: FC<ChatFooter> = ({ socket }) => {
   const handleInputChange = (newMessage: string) => {
     console.log('from input', { newMessage });
     setMessage(newMessage);
-    // setMessages((prevMessages: any) => [...prevMessages, { content: message }]);
   };
 
   //file upload
   const handleFileUpload = (file: File) => {
     setUploadedFile(file);
-    setMessage({ file: file });
-    // setMessages((prevMessages: any) => [...prevMessages, { content: fileMessage }]);
   };
 
   const handleOptionSelect = (option: string) => {
@@ -46,7 +43,7 @@ const ChatFooter: FC<ChatFooter> = ({ socket }) => {
     setShowCamera(!showCamera);
   };
 
-  const handleCameraCapture = (uri: string | null) => {
+  const handleCameraCapture = (uri: string) => {
     setImageUri(uri);
   };
 
@@ -67,9 +64,7 @@ const ChatFooter: FC<ChatFooter> = ({ socket }) => {
       />
       {showAudioRecorder && <AudioRecorderComponent setAudioUri={addAudioElement} />}
 
-      {showCamera && (
-        <Camera setImageUri={handleCameraCapture} socketAddress="ws://192.168.225.122" />
-      )}
+      {showCamera && <Camera setImageUri={handleCameraCapture} />}
 
       {/* {imageUri && (
         <MessageBox
@@ -85,7 +80,7 @@ const ChatFooter: FC<ChatFooter> = ({ socket }) => {
       )} */}
       <FileUpload handleFileUpload={handleFileUpload} />
       <InputArea handleInputChange={handleInputChange} />
-      <SendButton socket={socket} message={message} sentFile={uploadedFile} />
+      <SendButton socket={socket} message={message} sentFile={uploadedFile} sentImage={imageUri} />
     </div>
   );
 };
