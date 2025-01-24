@@ -5,6 +5,7 @@ import InputArea from './ChatButtons/InputArea';
 import SendButton from './ChatButtons/SendButton';
 import Camera from './ChatButtons/Camera';
 import AudioRecorderComponent from './ChatButtons/AudioRecorder';
+import { GrClearOption } from 'react-icons/gr';
 
 interface ChatFooter {
   socket: any;
@@ -19,15 +20,19 @@ const ChatFooter: FC<ChatFooter> = ({ socket }) => {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [showAudioRecorder, setShowAudioRecorder] = useState<boolean>(false);
   const [showCamera, setShowCamera] = useState<boolean>(false);
+  const [resetTrigger, setResetTrigger] = useState(false);
 
   //handle input
   const handleInputChange = (newMessage: string) => {
-    console.log('from input', { newMessage });
     setMessage(newMessage);
   };
 
+  const handleInputClear = () => {
+    setResetTrigger((prev) => !prev);
+  };
+
   //file upload
-  const handleFileUpload = (file: File) => {
+  const handleFileUpload = (file: File | null) => {
     setUploadedFile(file);
   };
 
@@ -56,17 +61,18 @@ const ChatFooter: FC<ChatFooter> = ({ socket }) => {
   };
 
   return (
-    <div className="chat-footer flex flex-row  gap-2">
-      <DropDown
-        onOptionSelect={handleOptionSelect}
-        onAudioClick={handleAudioClick}
-        onCameraClick={handleCameraClick}
-      />
-      {showAudioRecorder && <AudioRecorderComponent setAudioUri={addAudioElement} />}
+    <div className="chat-footer-container flex flex-row gap-2 align-center">
+      <div className="chat-footer flex flex-row gap-2">
+        <DropDown
+          onOptionSelect={handleOptionSelect}
+          onAudioClick={handleAudioClick}
+          onCameraClick={handleCameraClick}
+        />
+        {showAudioRecorder && <AudioRecorderComponent setAudioUri={addAudioElement} />}
 
-      {showCamera && <Camera setImageUri={handleCameraCapture} />}
+        {showCamera && <Camera setImageUri={handleCameraCapture} />}
 
-      {/* {imageUri && (
+        {/* {imageUri && (
         <MessageBox
           {...({
             position: "left",
@@ -78,9 +84,27 @@ const ChatFooter: FC<ChatFooter> = ({ socket }) => {
           } as any)}
         />
       )} */}
-      <FileUpload handleFileUpload={handleFileUpload} />
-      <InputArea handleInputChange={handleInputChange} />
-      <SendButton socket={socket} message={message} sentFile={uploadedFile} sentImage={imageUri} />
+        <FileUpload handleFileUpload={handleFileUpload} />
+        <InputArea handleInputChange={handleInputChange} resetTrigger={resetTrigger} />
+        <SendButton
+          socket={socket}
+          message={message}
+          sentFile={uploadedFile}
+          sentImage={imageUri}
+          setSentFile={handleFileUpload}
+          setSentImage={setImageUri}
+          handleInputclear={handleInputClear}
+        />
+      </div>
+      {/* display uploaded file */}
+      {uploadedFile && (
+        <div className="uploaded-file flex flex-row align-center gap-2 w-fit h-fit justify-center">
+          <p>Attached File: {uploadedFile.name}</p>
+          <button onClick={() => setUploadedFile(null)}>
+            <GrClearOption />
+          </button>
+        </div>
+      )}
     </div>
   );
 };

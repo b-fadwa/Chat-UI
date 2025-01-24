@@ -6,9 +6,20 @@ interface SendButtonProps {
   message: string;
   sentFile: File;
   sentImage: string;
+  setSentFile: (file: File | null) => void;
+  setSentImage: (image: string) => void;
+  handleInputclear: () => void;
 }
 
-const SendButton: FC<SendButtonProps> = ({ socket, message, sentFile, sentImage }) => {
+const SendButton: FC<SendButtonProps> = ({
+  socket,
+  message,
+  sentFile,
+  sentImage,
+  setSentFile,
+  setSentImage,
+  handleInputclear,
+}) => {
   const sendMessage = () => {
     if (socket) {
       if (sentFile) {
@@ -25,14 +36,17 @@ const SendButton: FC<SendButtonProps> = ({ socket, message, sentFile, sentImage 
           socket.send(JSON.stringify({ file: payload.fileContent }));
         };
         reader.readAsDataURL(sentFile); // Read the file as a Base64 data URL
+        setSentFile(null);
       }
       if (sentImage != '') {
         console.log('Sending image here:', sentImage);
         socket.send(JSON.stringify({ image: sentImage }));
+        setSentImage('');
       }
       if (message) {
         console.log('Message sent:', message);
         socket.send(JSON.stringify({ content: message }));
+        handleInputclear();
       }
     }
   };

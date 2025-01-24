@@ -1,8 +1,14 @@
 import EmojiPicker from 'emoji-picker-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { MdEmojiEmotions } from 'react-icons/md';
 
-const InputArea = ({ handleInputChange }: { handleInputChange: (message: string) => void }) => {
+const InputArea = ({
+  handleInputChange,
+  resetTrigger,
+}: {
+  handleInputChange: (message: string) => void;
+  resetTrigger: boolean;
+}) => {
   const [inputValue, setInputValue] = useState('');
   const [isEmojiPickerVisible, setIsEmojiPickerVisible] = useState(false);
 
@@ -17,6 +23,12 @@ const InputArea = ({ handleInputChange }: { handleInputChange: (message: string)
     setInputValue(updatedValue);
     handleInputChange(updatedValue);
   };
+
+  useEffect(() => {
+    // Reset input when parent indicates
+    setInputValue('');
+    handleInputChange('');
+  }, [resetTrigger]);
 
   return (
     <div className="chat-input-area flex flex-row border-2 border-gray-100 p-2 rounded">
