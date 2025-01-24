@@ -38,7 +38,7 @@ const SendButton: FC<SendButtonProps> = ({
         reader.readAsDataURL(sentFile); // Read the file as a Base64 data URL
         setSentFile(null);
       }
-      if (sentImage != '') {
+      if (sentImage != '' && sentImage != null) {
         console.log('Sending image here:', sentImage);
         socket.send(JSON.stringify({ image: sentImage }));
         setSentImage('');
