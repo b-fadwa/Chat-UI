@@ -33,11 +33,14 @@
 		<field name="Image" uuid="6903C128DE87974987FF350357271D93" type="12" never_null="true" id="7"/>
 		<field name="File" uuid="9E6E248EF989124185483610AFE04A27" type="18" never_null="true" id="8"/>
 		<field name="Audio" uuid="46F46737CB269B40BFC0907731A60462" type="18" never_null="true" id="9"/>
+		<field name="sentAt" uuid="BD79E65B7605124782B92D3D4C5837CF" type="9" never_null="true" id="10"/>
+		<field name="sentThe" uuid="DCA3B7C20739954D997797CF85494352" type="8" never_null="true" id="11"/>
+		<field name="Poll" uuid="9E128BBF235C674EB5B263362B8233D4" type="21" blob_switch_size="2147483647" never_null="true" id="12"/>
 		<primary_key field_name="UUID" field_uuid="DE61E355628F7445A24837A54CE7D933"/>
 		<table_extra>
-			<editor_table_info displayable_fields_count="9">
+			<editor_table_info displayable_fields_count="13">
 				<color red="255" green="255" blue="255" alpha="0"/>
-				<coordinates left="240" top="40" width="280" height="247.33203125"/>
+				<coordinates left="240" top="40" width="327" height="316.33203125"/>
 			</editor_table_info>
 		</table_extra>
 	</table>
