@@ -73,7 +73,8 @@ const WebcamCapture: FC<WebcamCaptureProps> = ({ setImageUri, socketAddress }) =
                     audio={false}
                     ref={webcamRef}
                     screenshotFormat="image/jpeg"
-                    width="100%"
+                    width="50%"
+                    height="30%"
                 />
             ) : null}
 

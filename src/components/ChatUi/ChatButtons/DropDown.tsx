@@ -8,9 +8,10 @@ interface DropDownProps {
   onOptionSelect: (option: string) => void;
   onAudioClick: () => void;
   onCameraClick: () => void;
+  onPollClick: () => void;
 }
 
-const DropDown = ({ onOptionSelect, onAudioClick, onCameraClick }: DropDownProps) => {
+const DropDown = ({ onOptionSelect, onAudioClick, onCameraClick, onPollClick }: DropDownProps) => {
 
   const items = [
     {
@@ -65,6 +66,8 @@ const DropDown = ({ onOptionSelect, onAudioClick, onCameraClick }: DropDownProps
                 onCameraClick();
               } else if (selectedItem.text === 'Send a voice clip') {
                 onAudioClick();
+              } else if (selectedItem.text === 'Create a poll') {
+                onPollClick();
               }
             } else {
               console.error('Selected item not found:', e);

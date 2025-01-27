@@ -6,6 +6,7 @@ import { IChatUiProps } from './ChatUi.config';
 import ChatHeader from './ChatHeader';
 import ChatBody from './ChatBody';
 import ChatFooter from './ChatFooter';
+import PollModal from './ChatButtons/Poll';
 
 const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames = [] }) => {
   const { connect } = useRenderer();
@@ -13,6 +14,8 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
   const [message, setMessage] = useState<any>('');
   const [connectionStatus, setConnectionStatus] = useState('Connecting...');
   const [messages, setMessages] = useState<any>([]);
+  const [showPollModal, setShowPollModal] = useState(false);
+
 
   useEffect(() => {
     console.log('socket useeffect executeeed!!!');
@@ -55,13 +58,29 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
     };
   }, [socketAddress]);
 
+  const handlePollSubmit = (poll: { question: string; options: string[]; allowMultiple: boolean }) => {
+    const pollMessage = {
+      type: 'poll',
+      question: poll.question,
+      options: poll.options,
+      allowMultiple: poll.allowMultiple,
+    };
+    socket.send(JSON.stringify({ poll: pollMessage }));
+    setMessages((prev: any) => [...prev, JSON.stringify(pollMessage)]);
+  };
+
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
       <ChatHeader />
       <ChatBody key={messages} data={messages} />
       <div className="flex flex-row">
-        <ChatFooter socket={socket} />
+        <ChatFooter socket={socket} onPollClick={() => setShowPollModal(true)} />
       </div>
+      <PollModal
+        isOpen={showPollModal}
+        onClose={() => setShowPollModal(false)}
+        onSubmit={handlePollSubmit}
+      />
     </div>
   );
 };
