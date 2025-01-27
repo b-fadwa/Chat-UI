@@ -7,13 +7,14 @@ import Camera from './ChatButtons/Camera';
 import AudioRecorderComponent from './ChatButtons/AudioRecorder';
 import { GrClearOption } from 'react-icons/gr';
 import { MessageBox } from 'react-chat-elements';
+// import PollModal from './ChatButtons/Poll';
 
 interface ChatFooter {
   socket: any;
+  onPollClick: () => void;
 }
 
-const ChatFooter: FC<ChatFooter> = ({ socket }) => {
-  // buttons
+const ChatFooter: FC<ChatFooter> = ({ socket, onPollClick }) => {
   const [message, setMessage] = useState<any>('');
   const [uploadedFile, setUploadedFile] = useState<any>(null);
   const [imageUri, setImageUri] = useState<string>('');
@@ -22,6 +23,7 @@ const ChatFooter: FC<ChatFooter> = ({ socket }) => {
   const [showAudioRecorder, setShowAudioRecorder] = useState<boolean>(false);
   const [showCamera, setShowCamera] = useState<boolean>(false);
   const [resetTrigger, setResetTrigger] = useState(false);
+  const [showPoll, setShowPoll] = useState<boolean>(false); // State for PollModal visibility
 
   //handle input
   const handleInputChange = (newMessage: string) => {
@@ -39,6 +41,21 @@ const ChatFooter: FC<ChatFooter> = ({ socket }) => {
 
   const handleOptionSelect = (option: string) => {
     setSelectedOption(option);
+
+    if (option === 'audio') {
+      setShowAudioRecorder(true);
+      setShowCamera(false);
+    } else if (option === 'camera') {
+      setShowCamera(true);
+      setShowAudioRecorder(false);
+    } else if (option === 'poll') {
+      setShowCamera(false);
+      setShowAudioRecorder(false);
+      setShowPoll(true);
+    } else {
+      setShowAudioRecorder(false);
+      setShowCamera(false);
+    }
   };
 
   const handleAudioClick = () => {
@@ -56,10 +73,21 @@ const ChatFooter: FC<ChatFooter> = ({ socket }) => {
   const addAudioElement = (blob: Blob) => {
     const url = URL.createObjectURL(blob);
     setAudioUri(url);
-    console.log({ audioUri });
-    console.log({ url });
     socket.send(JSON.stringify({ audio: url }));
   };
+
+  // const handlePollSubmit = (poll: {
+  //   question: string;
+  //   options: string[];
+  //   allowMultiple: boolean;
+  // }) => {
+  //   socket.send(JSON.stringify({ type: 'poll', data: poll }));
+  //   setShowPoll(false);
+  // };
+
+  // const handlePollClose = () => {
+  //   setShowPoll(false);
+  // };
 
   return (
     <div className="chat-footer-container flex flex-col gap-2 align-center">
@@ -105,9 +133,13 @@ const ChatFooter: FC<ChatFooter> = ({ socket }) => {
           onOptionSelect={handleOptionSelect}
           onAudioClick={handleAudioClick}
           onCameraClick={handleCameraClick}
+          onPollClick={onPollClick}
         />
         {showAudioRecorder && <AudioRecorderComponent setAudioUri={addAudioElement} />}
         {showCamera && <Camera setImageUri={handleCameraCapture} />}
+        {/* {showPoll && (
+          <PollModal onClose={handlePollClose} onSubmit={handlePollSubmit} isOpen={false} />
+        )} */}
         <FileUpload handleFileUpload={handleFileUpload} />
         <InputArea handleInputChange={handleInputChange} resetTrigger={resetTrigger} />
         <SendButton

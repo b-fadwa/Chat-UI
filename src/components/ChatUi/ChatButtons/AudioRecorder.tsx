@@ -6,15 +6,6 @@ interface AudioProps {
 }
 
 const AudioRecorderComponent: FC<AudioProps> = ({ setAudioUri }) => {
-    // const addAudioElement = (blob: Blob) => {
-    //     const url = URL.createObjectURL(blob);
-    //     const audio = document.createElement('audio');
-    //     audio.src = url;
-    //     audio.controls = true;
-    //     document.body.appendChild(audio);
-    // };
-
-
 
     return (
         <div>
