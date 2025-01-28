@@ -10,13 +10,30 @@ interface ChatBodyProps {
 const ChatBody: FC<ChatBodyProps> = ({ data }) => {
   let parsedItem: any;
   let isSender: boolean;
+  // let messageHour: string;
+  const formatTime = (time: number) => {
+    if (time >= 0) {
+      const hours = Math.floor(time / 3600);
+      const minutes = Math.floor((time % 3600) / 60);
+      const seconds = Math.floor(time % 60);
+      const formattedMinutes = minutes < 10 ? `0${minutes}` : `${minutes}`;
+      const formattedSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`;
+      if (hours > 0) {
+        return `${hours}:${formattedMinutes}:${formattedSeconds}`;
+      } else {
+        return `${formattedMinutes}:${formattedSeconds}`;
+      }
+    } else {
+      return '00:00';
+    }
+  };
   data = data.map((item: any) => {
     parsedItem = JSON.parse(item);
-    isSender = parsedItem.sender ? parsedItem.sender.startsWith('localhost') : true; //to be updated
-    //nothing
+    // (messageHour = messageDate.toLocaleTimeString('en-US', { timeZone: 'UTC' })),
+    isSender = parsedItem.sender && parsedItem.sender == 'Client1' ? false : true; //to be updated
     if (
-      (parsedItem.content == '') &&
-      (parsedItem.sender != '') &&
+      parsedItem.content == '' &&
+      parsedItem.sender != '' &&
       !parsedItem.file &&
       !parsedItem.audio &&
       !parsedItem.image
@@ -30,6 +47,7 @@ const ChatBody: FC<ChatBodyProps> = ({ data }) => {
         text: parsedItem.content,
         title: parsedItem.sender,
         position: isSender ? 'left' : 'right',
+        date: new Date(parsedItem.sentThe), 
       };
     // file object
     if (parsedItem.file)
@@ -37,6 +55,7 @@ const ChatBody: FC<ChatBodyProps> = ({ data }) => {
         type: 'file',
         text: 'File attached',
         title: parsedItem.sender,
+        date: formatTime(parsedItem.sentAt),
         data: {
           uri: parsedItem.file,
           status: {
@@ -49,7 +68,7 @@ const ChatBody: FC<ChatBodyProps> = ({ data }) => {
         },
         file: parsedItem.file,
         url: parsedItem.file,
-        position: isSender ? 'right' : 'left',
+        position: isSender ? 'left' : 'right',
       };
     //audio object
     if (parsedItem.audio) {
@@ -63,7 +82,8 @@ const ChatBody: FC<ChatBodyProps> = ({ data }) => {
             loading: 0,
           },
         },
-        position: isSender ? 'right' : 'left',
+        date: formatTime(parsedItem.sentAt),
+        position: isSender ? 'left' : 'right',
       };
     }
     //picture object
@@ -78,7 +98,8 @@ const ChatBody: FC<ChatBodyProps> = ({ data }) => {
             loading: 0,
           },
         },
-        position: isSender ? 'right' : 'left',
+        date: formatTime(parsedItem.sentAt),
+        position: isSender ? 'left' : 'right',
       };
     }
   });
@@ -100,7 +121,7 @@ const ChatBody: FC<ChatBodyProps> = ({ data }) => {
         onDownload={(message: any) => {
           handleDownload(message);
         }}
-        className="message-list bg-red-200"
+        className="message-list"
       />
     </div>
   );
