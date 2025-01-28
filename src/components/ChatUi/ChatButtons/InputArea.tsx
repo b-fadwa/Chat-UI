@@ -19,9 +19,11 @@ const InputArea = ({
   };
 
   const handleEmojiClick = (e: any) => {
-    const updatedValue = inputValue + e.emoji;
-    setInputValue(updatedValue);
-    handleInputChange(updatedValue);
+    if (e.emoji) {
+      setInputValue(inputValue + e.emoji);
+      setIsEmojiPickerVisible(false);
+      handleInputChange(inputValue + e.emoji);
+    }
   };
 
   useEffect(() => {
@@ -42,7 +44,7 @@ const InputArea = ({
       <button
         type="button"
         className="relative"
-        onClick={() => setIsEmojiPickerVisible(!isEmojiPickerVisible)}
+        onClick={() => setIsEmojiPickerVisible(true)}
       >
         <MdEmojiEmotions className="text-xl" />
         {isEmojiPickerVisible && (
