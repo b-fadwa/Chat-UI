@@ -1,5 +1,6 @@
 import { FC } from 'react';
 import { MessageList } from 'react-chat-elements';
+import { format } from 'timeago.js';
 
 interface ChatBodyProps {
   data: any;
@@ -10,26 +11,8 @@ interface ChatBodyProps {
 const ChatBody: FC<ChatBodyProps> = ({ data }) => {
   let parsedItem: any;
   let isSender: boolean;
-  // let messageHour: string;
-  const formatTime = (time: number) => {
-    if (time >= 0) {
-      const hours = Math.floor(time / 3600);
-      const minutes = Math.floor((time % 3600) / 60);
-      const seconds = Math.floor(time % 60);
-      const formattedMinutes = minutes < 10 ? `0${minutes}` : `${minutes}`;
-      const formattedSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`;
-      if (hours > 0) {
-        return `${hours}:${formattedMinutes}:${formattedSeconds}`;
-      } else {
-        return `${formattedMinutes}:${formattedSeconds}`;
-      }
-    } else {
-      return '00:00';
-    }
-  };
   data = data.map((item: any) => {
     parsedItem = JSON.parse(item);
-    // (messageHour = messageDate.toLocaleTimeString('en-US', { timeZone: 'UTC' })),
     isSender = parsedItem.sender && parsedItem.sender == 'Client1' ? false : true; //to be updated
     if (
       parsedItem.content == '' &&
@@ -46,8 +29,8 @@ const ChatBody: FC<ChatBodyProps> = ({ data }) => {
         type: 'text',
         text: parsedItem.content,
         title: parsedItem.sender,
-        position: isSender ? 'left' : 'right',
-        date: new Date(parsedItem.sentThe), 
+        date: format(parsedItem.dateStamp),
+        dateString:format(parsedItem.dateStamp),
       };
     // file object
     if (parsedItem.file)
@@ -55,7 +38,8 @@ const ChatBody: FC<ChatBodyProps> = ({ data }) => {
         type: 'file',
         text: 'File attached',
         title: parsedItem.sender,
-        date: formatTime(parsedItem.sentAt),
+        date: format(parsedItem.dateStamp),
+        dateString:format(parsedItem.dateStamp),
         data: {
           uri: parsedItem.file,
           status: {
@@ -82,7 +66,8 @@ const ChatBody: FC<ChatBodyProps> = ({ data }) => {
             loading: 0,
           },
         },
-        date: formatTime(parsedItem.sentAt),
+        date:format(parsedItem.dateStamp),
+        dateString:format(parsedItem.dateStamp),
         position: isSender ? 'left' : 'right',
       };
     }
@@ -98,7 +83,8 @@ const ChatBody: FC<ChatBodyProps> = ({ data }) => {
             loading: 0,
           },
         },
-        date: formatTime(parsedItem.sentAt),
+        date:format(parsedItem.dateStamp),
+        dateString:format(parsedItem.dateStamp),
         position: isSender ? 'left' : 'right',
       };
     }
