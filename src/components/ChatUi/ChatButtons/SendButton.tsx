@@ -4,10 +4,12 @@ import { IoIosSend } from 'react-icons/io';
 interface SendButtonProps {
   socket: WebSocket;
   message: string;
-  sentFile: File;
+  sentFile: File | null;
   sentImage: string;
+  sentPoll: object | null;
   setSentFile: (file: File | null) => void;
   setSentImage: (image: string) => void;
+  setSentPoll: (poll: object | null) => void;
   handleInputclear: () => void;
 }
 
@@ -16,8 +18,10 @@ const SendButton: FC<SendButtonProps> = ({
   message,
   sentFile,
   sentImage,
+  sentPoll,
   setSentFile,
   setSentImage,
+  setSentPoll,
   handleInputclear,
 }) => {
   const sendMessage = () => {
@@ -31,11 +35,11 @@ const SendButton: FC<SendButtonProps> = ({
             content: message,
             fileName: sentFile.name,
             fileType: sentFile.type,
-            fileContent: base64FileContent, // Add Base64-encoded content
+            fileContent: base64FileContent,
           };
           socket.send(JSON.stringify({ file: payload.fileContent }));
         };
-        reader.readAsDataURL(sentFile); // Read the file as a Base64 data URL
+        reader.readAsDataURL(sentFile);
         setSentFile(null);
       }
       if (sentImage != '' && sentImage != null) {
@@ -47,6 +51,11 @@ const SendButton: FC<SendButtonProps> = ({
         console.log('Message sent:', message);
         socket.send(JSON.stringify({ content: message }));
         handleInputclear();
+      }
+      if (sentPoll != null && sentPoll) {
+        console.log('Sending poll here:', sentPoll);
+        socket.send(JSON.stringify({ type: 'poll', data: sentPoll }));
+        setSentPoll(null);
       }
     }
   };

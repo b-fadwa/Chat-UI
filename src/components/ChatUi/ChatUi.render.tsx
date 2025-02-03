@@ -35,6 +35,7 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
     };
     //
     socket.onmessage = (event) => {
+      console.log("Received WebSocket Message:", event.data);
       const datamessages = event.data.split('\n').filter((msg: any) => msg.trim() !== '');
       setMessages((prev: any) => [...prev, ...datamessages]);
     };
