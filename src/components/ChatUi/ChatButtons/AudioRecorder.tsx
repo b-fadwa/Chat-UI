@@ -14,20 +14,11 @@ const AudioRecorderComponent: FC<AudioProps> = ({ setAudioUri }) => {
                 audioTrackConstraints={{
                     noiseSuppression: true,
                     echoCancellation: true,
-                    // autoGainControl,
-                    // channelCount,
-                    // deviceId,
-                    // groupId,
-                    // sampleRate,
-                    // sampleSize,
                 }}
                 onNotAllowedOrFound={(err) => console.table(err)}
-                downloadOnSavePress={true}
-                downloadFileExtension="webm"
                 mediaRecorderOptions={{
                     audioBitsPerSecond: 128000,
                 }}
-            // showVisualizer={true}
             />
             <br />
         </div>

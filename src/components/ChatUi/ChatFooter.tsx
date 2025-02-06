@@ -70,24 +70,17 @@ const ChatFooter: FC<ChatFooter> = ({ socket, onPollClick }) => {
     setImageUri(uri);
   };
 
-  const addAudioElement = (blob: Blob) => {
-    const url = URL.createObjectURL(blob);
-    setAudioUri(url);
-    socket.send(JSON.stringify({ audio: url }));
+  const addAudioElement = async (blob: Blob) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(blob); // Convert blob to Base64
+    reader.onloadend = () => {
+      const audioBase64String = reader.result as string;
+      if (audioBase64String) {
+        setAudioUri(audioBase64String);
+        socket.send(JSON.stringify({ audio: audioBase64String }));
+      }
+    };
   };
-
-  // const handlePollSubmit = (poll: {
-  //   question: string;
-  //   options: string[];
-  //   allowMultiple: boolean;
-  // }) => {
-  //   socket.send(JSON.stringify({ type: 'poll', data: poll }));
-  //   setShowPoll(false);
-  // };
-
-  // const handlePollClose = () => {
-  //   setShowPoll(false);
-  // };
 
   return (
     <div className="chat-footer-container flex flex-col gap-2 align-center">
@@ -98,7 +91,7 @@ const ChatFooter: FC<ChatFooter> = ({ socket, onPollClick }) => {
             {...({
               position: 'right',
               type: 'photo',
-              title: 'User',
+              title: 'You',
               data: {
                 uri: imageUri,
               },
@@ -115,7 +108,7 @@ const ChatFooter: FC<ChatFooter> = ({ socket, onPollClick }) => {
             {...({
               position: 'right',
               type: 'file',
-              title: 'User',
+              title: 'You',
               text: uploadedFile.name,
               data: {
                 uri: uploadedFile.uri,
@@ -135,11 +128,8 @@ const ChatFooter: FC<ChatFooter> = ({ socket, onPollClick }) => {
           onCameraClick={handleCameraClick}
           onPollClick={onPollClick}
         />
-        {showAudioRecorder && <AudioRecorderComponent setAudioUri={addAudioElement} />}
         {showCamera && <Camera setImageUri={handleCameraCapture} />}
-        {/* {showPoll && (
-          <PollModal onClose={handlePollClose} onSubmit={handlePollSubmit} isOpen={false} />
-        )} */}
+        {showAudioRecorder && <AudioRecorderComponent setAudioUri={addAudioElement} />}
         <FileUpload handleFileUpload={handleFileUpload} />
         <InputArea handleInputChange={handleInputChange} resetTrigger={resetTrigger} />
         <SendButton

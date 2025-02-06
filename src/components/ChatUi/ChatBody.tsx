@@ -30,7 +30,8 @@ const ChatBody: FC<ChatBodyProps> = ({ data }) => {
         text: parsedItem.content,
         title: parsedItem.sender,
         date: format(parsedItem.dateStamp),
-        dateString:format(parsedItem.dateStamp),
+        dateString: format(parsedItem.dateStamp),
+        position: isSender ? 'left' : 'right',
       };
     // file object
     if (parsedItem.file)
@@ -39,7 +40,7 @@ const ChatBody: FC<ChatBodyProps> = ({ data }) => {
         text: 'File attached',
         title: parsedItem.sender,
         date: format(parsedItem.dateStamp),
-        dateString:format(parsedItem.dateStamp),
+        dateString: format(parsedItem.dateStamp),
         data: {
           uri: parsedItem.file,
           status: {
@@ -66,8 +67,8 @@ const ChatBody: FC<ChatBodyProps> = ({ data }) => {
             loading: 0,
           },
         },
-        date:format(parsedItem.dateStamp),
-        dateString:format(parsedItem.dateStamp),
+        date: format(parsedItem.dateStamp),
+        dateString: format(parsedItem.dateStamp),
         position: isSender ? 'left' : 'right',
       };
     }
@@ -83,8 +84,8 @@ const ChatBody: FC<ChatBodyProps> = ({ data }) => {
             loading: 0,
           },
         },
-        date:format(parsedItem.dateStamp),
-        dateString:format(parsedItem.dateStamp),
+        date: format(parsedItem.dateStamp),
+        dateString: format(parsedItem.dateStamp),
         position: isSender ? 'left' : 'right',
       };
     }
