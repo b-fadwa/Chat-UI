@@ -38,9 +38,9 @@ Function onOpen($ws : 4D:C1709.WebSocketConnection; $info : Object)
 	//If ($client.id#$ws.id)
 	For each ($message; $messages)
 		$data:=This:C1470.formatData($message)
-		$ws.send(JSON Stringify:C1217({sender: String:C10($message.SenderAddr); receiver: String:C10($message.ReceiverAddr); \
-			content: $message.Content; image: $data.imageBase64; audio: $data.audioBase64; file: $data.fileBase64; sentAt: $message.sentAt; \
-			sentThe: $message.sentThe; dateStamp: String:C10($message.sentThe; ISO date GMT:K1:10; $message.sentAt)})+"\n")
+		$ws.send(JSON Stringify:C1217({sender: String:C10($message.Sender); receiver: String:C10($message.Receiver); \
+			content: $message.Content; image: $data.imageBase64; audio: $data.audioBase64; file: $data.fileBase64; sentAt: Time:C179($message.sentAt); \
+			sentThe: $message.sentThe; dateStamp: String:C10($message.sentThe; ISO date GMT:K1:10; Time:C179($message.sentAt))})+"\n")
 		//End for each 
 		//End if 
 	End for each 
@@ -50,7 +50,7 @@ Function onMessage($ws : Object; $info : Object)
 	var $message : cs:C1710.MessagesEntity
 	var $data : Variant
 	var $formattedData : Object
-	SET BLOB SIZE:C606(vxBlob; 0)
+	SET BLOB SIZE:C606(vxBlob;0)
 	// Resend the message to all clients
 	For each ($client; $ws.wss.connections)
 		//If ($client.id#$ws.id)
@@ -60,13 +60,12 @@ Function onMessage($ws : Object; $info : Object)
 		$message.Receiver:=$client.handler.name
 		$message.ReceiverAddr:=$client.handler.address
 		$message.SenderAddr:=This:C1470.address
-		//TRACE
 		$message.sentThe:=Current date:C33
 		$message.sentAt:=Current time:C178
 		Try
 			$data:=JSON Parse:C1218($info.data)
 		Catch
-			$data:={content: $info.data}
+			$data:={audio: $info.data}
 		End try
 		Case of 
 			: (String:C10($data.content)#"" && Not:C34(Undefined:C82($data.content)))
@@ -78,14 +77,14 @@ Function onMessage($ws : Object; $info : Object)
 				TEXT TO BLOB:C554($data.file; vxBlob)
 				$message.File:=vxBlob
 			: ($data.audio#"" && Not:C34(Undefined:C82($data.audio)))
-				TEXT TO BLOB:C554($data.audio; vxBlob)
+				TEXT TO BLOB:C554($data.audio; vxBlob; UTF8 C string:K22:15)
 				$message.Audio:=vxBlob
 		End case 
 		$message.save()
 		$formattedData:=This:C1470.formatData($message)
-		//$client.send($client.handler.myMessage(This.color; This.name+": "+String($info.data)))
-		//$client.send($client.handler.myMessage(JSON Stringify({sender: String($message.SenderAddr); receiver: String($message.ReceiverAddr); content: $message.Content; file: $formattedData.fileBase64; audio: $formattedData.audioBase64; image: $formattedData.imageBase64; sentAt: $message.sentAt; sentThe: $message.sentThe; dateStamp: String($message.sentThe; ISO date GMT; $message.sentAt)})+"\n"))
-		$client.send(JSON Stringify:C1217({sender: String:C10($message.SenderAddr); receiver: String:C10($message.ReceiverAddr); content: $message.Content; file: $formattedData.fileBase64; audio: $formattedData.audioBase64; image: $formattedData.imageBase64; sentAt: $message.sentAt; sentThe: $message.sentThe; dateStamp: String:C10($message.sentThe; ISO date GMT:K1:10; $message.sentAt)})+"\n")
+		$client.send(JSON Stringify:C1217({sender: String:C10($message.Sender); receiver: String:C10($message.Receiver); content: $message.Content; \
+			file: $formattedData.fileBase64; audio: $formattedData.audioBase64; image: $formattedData.imageBase64; sentAt: Time:C179($message.sentAt); \
+			sentThe: $message.sentThe; dateStamp: String:C10($message.sentThe; ISO date GMT:K1:10; Time:C179($message.sentAt))})+"\n")
 		//End if 
 	End for each 
 	
@@ -100,7 +99,7 @@ Function onTerminate($ws : Object; $info : Object)
 	// resend the message "new client connected" to all clients
 	For each ($client; $ws.wss.connections)
 		If ($client.id#$ws.id)
-			$client.send(String:C10(This:C1470.name)+" disconnected!")
+			$client.send(JSON Stringify:C1217({content: String:C10(This:C1470.name)+" disconnected!"}))
 		End if 
 	End for each 
 	
