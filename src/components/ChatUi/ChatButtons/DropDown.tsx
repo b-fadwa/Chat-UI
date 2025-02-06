@@ -45,8 +45,9 @@ const DropDown = ({ onOptionSelect, onAudioClick, onCameraClick, onPollClick }: 
       <Dropdown
         {...({
           style: {},
+          animationPosition:"southwest",
           className: 'dropdown-css bg-gray-100 p-2 flex items-center rounded h-full',
-          onClick: (e: any) => console.log('Dropdown clicked', e),
+          onClick: () => {},
           buttonProps: {
             backgroundColor: '#F3F4F6',
             icon: {

@@ -8,7 +8,7 @@ interface AudioProps {
 const AudioRecorderComponent: FC<AudioProps> = ({ setAudioUri }) => {
 
     return (
-        <div>
+        <div className='audio-container h-full flex align-center p-2 bg-gray-100 rounded'>
             <AudioRecorder
                 onRecordingComplete={setAudioUri}
                 audioTrackConstraints={{
@@ -18,6 +18,10 @@ const AudioRecorderComponent: FC<AudioProps> = ({ setAudioUri }) => {
                 onNotAllowedOrFound={(err) => console.table(err)}
                 mediaRecorderOptions={{
                     audioBitsPerSecond: 128000,
+                }}
+                classes={{
+                    AudioRecorderClass:'h-fit w-full',
+                    AudioRecorderStartSaveClass:'bg-transparent rounded-none shadow-none',
                 }}
             />
             <br />
