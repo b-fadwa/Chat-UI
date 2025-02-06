@@ -65,7 +65,7 @@ Function onMessage($ws : Object; $info : Object)
 		Try
 			$data:=JSON Parse:C1218($info.data)
 		Catch
-			$data:={audio: $info.data}
+			$data:={content: $info.data}
 		End try
 		Case of 
 			: (String:C10($data.content)#"" && Not:C34(Undefined:C82($data.content)))
