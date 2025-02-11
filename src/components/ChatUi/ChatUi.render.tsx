@@ -78,14 +78,14 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
     setMessages((prev: any) => [...prev, JSON.stringify(pollMessage)]);
   };
 
-  const sendMessage = (message: any) => {
-    if (socket && socket.readyState === WebSocket.OPEN) {
-      socket.send(JSON.stringify(message));
-      setMessages((prev: any) => [...prev, JSON.stringify(message)]);
-    } else {
-      console.error("WebSocket is not open. Cannot send message.");
-    }
-  };
+  // const sendMessage = (message: any) => {
+  //   if (socket && socket.readyState === WebSocket.OPEN) {
+  //     socket.send(JSON.stringify(message));
+  //     setMessages((prev: any) => [...prev, JSON.stringify(message)]);
+  //   } else {
+  //     console.error("WebSocket is not open. Cannot send message.");
+  //   }
+  // };
 
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>

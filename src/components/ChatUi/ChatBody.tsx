@@ -8,39 +8,49 @@ interface ChatBodyProps {
   pollID: number;
 }
 
-// ws://websocket
-
-const ChatBody: FC<ChatBodyProps> = ({ data, socket, pollID }) => {
+const ChatBody: FC<ChatBodyProps> = ({ data, socket }) => {
   let parsedItem: any;
   let isSender: boolean;
 
+
   const [pollResponses, setPollResponses] = useState<Record<string, any>>({});
 
-  const handlePollResponse = useCallback((option: object, parsedItem: any) => {
-    console.log("This is the polllllllll", parsedItem)
-    if (parsedItem.pollID) {
 
+  const handlePollResponse = useCallback((option: object, parsedItem: any) => {
+    console.log("Poll response submitted:", parsedItem);
+
+    if (parsedItem.pollID) {
       setPollResponses((prev) => {
-        const updatedResponses = { ...prev, [parsedItem.pollID]: [option] };
+        const updatedResponses = {
+          ...prev,
+          [parsedItem.pollID]: [...(prev[parsedItem.pollID] || []), option],
+        };
         return updatedResponses;
       });
     }
-    if (socket) {
-      if (parsedItem.pollID) {
-        const pollData = { pollID: parsedItem.pollID, selectedOptions: option };
-        socket.send(JSON.stringify({ poll: pollData }));
-      }
-      console.log(parsedItem.pollID)
-    }
 
+    if (socket && parsedItem.pollID) {
+      const pollData = { pollID: parsedItem.pollID, selectedOptions: option };
+      socket.send(JSON.stringify({ poll: pollData }));
+    }
   }, [socket]);
+
 
   const getOptionCounts = (poll: any) => {
     const counts: Record<string, number> = {};
+
     poll.selectedOptions.forEach((item: any) => {
       const option = item.selectedOptions.option;
       counts[option] = (counts[option] || 0) + 1;
     });
+
+    if (pollResponses[poll.pollID]) {
+      pollResponses[poll.pollID].forEach((item: any) => {
+        const option = item.option;
+        counts[option] = (counts[option] || 0) + 1;
+      });
+    }
+
     return counts;
   };
 
@@ -56,9 +66,7 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket, pollID }) => {
           id={`poll-${i}`}
           name={parsedItem.poll.pollID}
           value={option}
-          checked={
-            parsedItem.poll.selectedOptions.some((item: any) => item.selectedOptions.option === option)
-          }
+          checked={parsedItem.poll.selectedOptions.some((item: any) => item.selectedOptions.option === option)}
           onChange={() => handlePollResponse({ option }, poll)}
         />
 
@@ -78,8 +86,7 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket, pollID }) => {
   };
 
 
-
-  data = data.map((item: any, index: number) => {
+  data = data.map((item: any) => {
     parsedItem = JSON.parse(item);
     isSender = parsedItem.sender ? parsedItem.sender.startsWith('localhost') : true; //to be updated
 
@@ -154,11 +161,6 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket, pollID }) => {
     }
     //poll Object
     if (parsedItem.poll) {
-      console.log(parsedItem.poll.selectedOptions.map((item: any) => item.selectedOptions.option))
-
-      const poll = parsedItem.poll;
-      const optionCounts = getOptionCounts(poll);
-      console.log("THIS IS OPTIONCOUNTS :", optionCounts);
 
       if (parsedItem.poll) {
         return {
