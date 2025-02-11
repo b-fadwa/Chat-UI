@@ -54,7 +54,7 @@ const SendButton: FC<SendButtonProps> = ({
       }
       if (sentPoll != null && sentPoll) {
         console.log('Sending poll here:', sentPoll);
-        socket.send(JSON.stringify({ type: 'poll', data: sentPoll }));
+        socket.send(JSON.stringify({ poll: sentPoll }));
         setSentPoll(null);
       }
     }

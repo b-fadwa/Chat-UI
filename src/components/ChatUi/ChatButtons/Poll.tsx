@@ -1,16 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface PollModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (poll: { question: string; options: string[]; allowMultiple: boolean }) => void;
+    onSubmit: (poll: { pollID: number; question: string; options: string[]; allowMultiple: boolean; selectedOptions: object }) => void;
+    pollID: number;
 }
 
-const PollModal: React.FC<PollModalProps> = ({ isOpen, onClose, onSubmit }) => {
+const PollModal: React.FC<PollModalProps> = ({ isOpen, onClose, onSubmit, pollID: existingPollID }) => {
+    const [pollID, setPollID] = useState(existingPollID ?? 0);
     const [question, setQuestion] = useState('');
     const [options, setOptions] = useState<string[]>(['', '']);
     const [allowMultiple, setAllowMultiple] = useState(false);
+    const [selectedOptions, setSelectedOptions] = useState([]);
 
+    // Reset form state when the modal is opened
+    useEffect(() => {
+        if (isOpen) {
+            setPollID(existingPollID ?? ((prev) => prev + 1));
+            setQuestion('');
+            setOptions(['', '']);
+            setAllowMultiple(false);
+            setSelectedOptions([]);
+        }
+    }, [isOpen]);
+    console.log('From Poll : ', pollID)
     const handleOptionChange = (index: number, value: string) => {
         const updatedOptions = [...options];
         updatedOptions[index] = value;
@@ -27,7 +41,7 @@ const PollModal: React.FC<PollModalProps> = ({ isOpen, onClose, onSubmit }) => {
 
     const handleSubmit = () => {
         if (question.trim() && options.some((option) => option.trim())) {
-            onSubmit({ question, options: options.filter((opt) => opt.trim()), allowMultiple });
+            onSubmit({ pollID, question, options: options.filter((opt) => opt.trim()), allowMultiple, selectedOptions });
             onClose();
         } else {
             alert('Please provide a question and at least one option.');

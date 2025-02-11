@@ -1,31 +1,87 @@
-import { FC, useState } from 'react';
+import { FC, useCallback, useState } from 'react';
 import { MessageList } from 'react-chat-elements';
+
 
 interface ChatBodyProps {
   data: any;
+  socket: WebSocket;
+  pollID: number;
 }
 
 // ws://websocket
 
-const ChatBody: FC<ChatBodyProps> = ({ data }) => {
+const ChatBody: FC<ChatBodyProps> = ({ data, socket, pollID }) => {
   let parsedItem: any;
   let isSender: boolean;
 
-  const [pollResponses, setPollResponses] = useState<Record<string, string | null>>({});
+  const [pollResponses, setPollResponses] = useState<Record<string, any>>({});
 
-  const handlePollResponse = (pollId: string, option: string) => {
-    setPollResponses((prev) => ({
-      ...prev,
-      [pollId]: option,
-    }));
-    console.log(`Poll ID: ${pollId}, Selected Option: ${option}`);
+  const handlePollResponse = useCallback((option: object, parsedItem: any) => {
+    console.log("This is the polllllllll", parsedItem)
+    if (parsedItem.pollID) {
+
+      setPollResponses((prev) => {
+        const updatedResponses = { ...prev, [parsedItem.pollID]: [option] };
+        return updatedResponses;
+      });
+    }
+    if (socket) {
+      if (parsedItem.pollID) {
+        const pollData = { pollID: parsedItem.pollID, selectedOptions: option };
+        socket.send(JSON.stringify({ poll: pollData }));
+      }
+      console.log(parsedItem.pollID)
+    }
+
+  }, [socket]);
+
+  const getOptionCounts = (poll: any) => {
+    const counts: Record<string, number> = {};
+    poll.selectedOptions.forEach((item: any) => {
+      const option = item.selectedOptions.option;
+      counts[option] = (counts[option] || 0) + 1;
+    });
+    return counts;
   };
+
+  const renderPollResults = (poll: any) => {
+    const counts = getOptionCounts(poll);
+    console.log("FROM POLL RESULTS", parsedItem.poll.pollID)
+    return poll.options.map((option: string, i: number) => (
+
+      <div key={i} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px', gap: '10px' }}>
+
+        <input
+          type="checkbox"
+          id={`poll-${i}`}
+          name={parsedItem.poll.pollID}
+          value={option}
+          checked={
+            parsedItem.poll.selectedOptions.some((item: any) => item.selectedOptions.option === option)
+          }
+          onChange={() => handlePollResponse({ option }, poll)}
+        />
+
+        <div style={{ display: 'flex', flexDirection: 'column', flex: '1' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <label htmlFor={`poll-${i}`} style={{ fontWeight: 'bold' }}>
+              {option}
+            </label>
+            <span style={{ fontWeight: 'bold' }}>{counts[option] || 0}</span>
+          </div>
+          <meter min="0" max="100" value={(counts[option] || 0) * 10} style={{ width: '100%', }} />
+        </div>
+      </div>
+
+    ));
+
+  };
+
+
 
   data = data.map((item: any, index: number) => {
     parsedItem = JSON.parse(item);
     isSender = parsedItem.sender ? parsedItem.sender.startsWith('localhost') : true; //to be updated
-
-    console.log(parsedItem.poll)
 
     if (
       (parsedItem.content == '') &&
@@ -38,15 +94,17 @@ const ChatBody: FC<ChatBodyProps> = ({ data }) => {
       return null;
     }
     //text
-    if (parsedItem.content)
+    if (parsedItem.content) {
       return {
         type: 'text',
         text: parsedItem.content,
         title: parsedItem.sender,
         position: isSender ? 'left' : 'right',
       };
+    }
     // file object
-    if (parsedItem.file)
+    if (parsedItem.file) {
+      console.log("file added")
       return {
         type: 'file',
         text: 'File attached',
@@ -62,8 +120,10 @@ const ChatBody: FC<ChatBodyProps> = ({ data }) => {
         url: parsedItem.file,
         position: isSender ? 'right' : 'left',
       };
+    }
     //audio object
     if (parsedItem.audio) {
+      console.log("audio added")
       return {
         type: 'audio',
         title: parsedItem.sender,
@@ -94,81 +154,27 @@ const ChatBody: FC<ChatBodyProps> = ({ data }) => {
     }
     //poll Object
     if (parsedItem.poll) {
-      let pollData;
+      console.log(parsedItem.poll.selectedOptions.map((item: any) => item.selectedOptions.option))
 
-      if (typeof (parsedItem.poll) == "object") {
+      const poll = parsedItem.poll;
+      const optionCounts = getOptionCounts(poll);
+      console.log("THIS IS OPTIONCOUNTS :", optionCounts);
 
+      if (parsedItem.poll) {
         return {
           type: 'text',
           text: (
             <div>
               <h4>{parsedItem.poll.question}</h4>
-              {parsedItem.poll.options.map((option: string, i: number) => (
-                <div key={i}>
-                  <input
-                    type="radio"
-                    id={`poll-${index}-option-${i}`}
-                    name={`poll-${index}`}
-                    value={option}
-                    checked={pollResponses[`poll-${index}`] === option}
-                    onChange={() => handlePollResponse(`poll-${index}`, option)}
-                  />
-                  <label htmlFor={`poll-${index}-option-${i}`} style={{ marginLeft: '8px' }}>
-                    {option}
-                  </label>
-                </div>
-              ))}
+              {renderPollResults(parsedItem.poll)}
             </div>
           ),
           title: parsedItem.sender,
           position: isSender ? 'left' : 'right',
         };
       }
-      else {
-        try {
-          pollData = JSON.parse(parsedItem.poll);
-        } catch (error) {
-          console.error("Failed to parse poll data:", error, parsedItem.poll);
-          return null;
-        }
-
-        if (!pollData || !pollData.question || !pollData.options) {
-          console.warn("Invalid poll data:", pollData);
-          return null;
-        }
-
-        return {
-          type: 'text',
-          text: (
-            <div>
-              <h4>{pollData.question}</h4>
-              {pollData.options.map((option: string, i: number) => (
-                <div key={i}>
-                  <input
-                    type="radio"
-                    id={`poll-${index}-option-${i}`}
-                    name={`poll-${index}`}
-                    value={option}
-                    checked={pollResponses[`poll-${index}`] === option}
-                    onChange={() => handlePollResponse(`poll-${index}`, option)}
-                  />
-                  <label htmlFor={`poll-${index}-option-${i}`} style={{ marginLeft: '8px' }}>
-                    {option}
-                  </label>
-                </div>
-              ))}
-            </div>
-          ),
-          title: parsedItem.sender,
-          position: isSender ? 'left' : 'right',
-        };
-      }
-
     }
-
-
-  })
-    ;
+  });
 
   const handleDownload = (message: any) => {
     const fileUrl = message.data?.uri || message.data?.audioURL || message.data.url;
@@ -187,7 +193,7 @@ const ChatBody: FC<ChatBodyProps> = ({ data }) => {
         onDownload={(message: any) => {
           handleDownload(message);
         }}
-        className="message-list bg-red-200"
+        className="message-list bg-grey-50"
       />
     </div>
   );

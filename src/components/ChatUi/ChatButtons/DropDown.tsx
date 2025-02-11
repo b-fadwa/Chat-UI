@@ -52,7 +52,7 @@ const DropDown = ({ onOptionSelect, onAudioClick, onCameraClick, onPollClick }: 
             icon: {
               float: 'left',
               component: <FaPlusCircle className="bg-gray-100 text-gray-600" />,
-              size:15,
+              size: 15,
             },
           },
           onSelect: (e: any) => {
