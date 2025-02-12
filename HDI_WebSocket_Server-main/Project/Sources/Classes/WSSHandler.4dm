@@ -14,7 +14,7 @@ Function onOpen($wss : Object; $param : Object)
 	
 	CALL FORM:C1391(This:C1470.winRef; Formula:C1597(WA OPEN URL:C1020(*; "Web Area"; $url)))
 	
-/** Function called each time a new user log in
+/* Function called each time a new user log in
  In this example, we accept all the connections */
 Function onConnection($wss : Object; $param : Object) : Object
 	
