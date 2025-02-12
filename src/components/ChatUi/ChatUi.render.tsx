@@ -7,6 +7,7 @@ import ChatHeader from './ChatHeader';
 import ChatBody from './ChatBody';
 import ChatFooter from './ChatFooter';
 import PollModal from './ChatButtons/Poll';
+import { getRandomId } from '@ws-ui/craftjs-utils';
 
 const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames = [] }) => {
   const { connect } = useRenderer();
@@ -14,6 +15,8 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
   const [connectionStatus, setConnectionStatus] = useState('Connecting...');
   const [messages, setMessages] = useState<any>([]);
   const [showPollModal, setShowPollModal] = useState(false);
+  const [pollID, setPollID] = useState<any>(getRandomId(50));
+
 
   useEffect(() => {
     console.log('socket useeffect executeeed!!!');
@@ -35,6 +38,7 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
     };
     //
     socket.onmessage = (event) => {
+      console.log("Received WebSocket Message:", event.data);
       const datamessages = event.data.split('\n').filter((msg: any) => msg.trim() !== '');
       setMessages((prev: any) => [...prev, ...datamessages]);
     };
@@ -56,30 +60,48 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
   }, [socketAddress]);
 
   const handlePollSubmit = (poll: {
+    pollID: number;
     question: string;
     options: string[];
     allowMultiple: boolean;
+    selectedOptions: object;
   }) => {
     const pollMessage = {
-      type: 'poll',
+      pollID: poll.pollID,
       question: poll.question,
       options: poll.options,
       allowMultiple: poll.allowMultiple,
+      selectedOptions: poll.selectedOptions,
     };
+    console.log(socket)
     socket.send(JSON.stringify({ poll: pollMessage }));
     setMessages((prev: any) => [...prev, JSON.stringify(pollMessage)]);
   };
 
+  // const sendMessage = (message: any) => {
+  //   if (socket && socket.readyState === WebSocket.OPEN) {
+  //     socket.send(JSON.stringify(message));
+  //     setMessages((prev: any) => [...prev, JSON.stringify(message)]);
+  //   } else {
+  //     console.error("WebSocket is not open. Cannot send message.");
+  //   }
+  // };
+
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
       <ChatHeader />
-      <ChatBody key={messages} data={messages} />
+      <ChatBody key={messages.length} data={messages} socket={socket} pollID={pollID} />
       <ChatFooter socket={socket} onPollClick={() => setShowPollModal(true)} />
       <PollModal
         isOpen={showPollModal}
         onClose={() => setShowPollModal(false)}
-        onSubmit={handlePollSubmit}
+        onSubmit={(poll) => {
+          handlePollSubmit(poll);
+          setPollID(pollID);
+        }}
+        pollID={pollID}
       />
+
     </div>
   );
 };

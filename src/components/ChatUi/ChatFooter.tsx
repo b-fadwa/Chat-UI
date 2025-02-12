@@ -7,7 +7,6 @@ import Camera from './ChatButtons/Camera';
 import AudioRecorderComponent from './ChatButtons/AudioRecorder';
 import { GrClearOption } from 'react-icons/gr';
 import { MessageBox } from 'react-chat-elements';
-// import PollModal from './ChatButtons/Poll';
 
 interface ChatFooter {
   socket: any;
@@ -23,7 +22,8 @@ const ChatFooter: FC<ChatFooter> = ({ socket, onPollClick }) => {
   const [showAudioRecorder, setShowAudioRecorder] = useState<boolean>(false);
   const [showCamera, setShowCamera] = useState<boolean>(false);
   const [resetTrigger, setResetTrigger] = useState(false);
-  const [showPoll, setShowPoll] = useState<boolean>(false); // State for PollModal visibility
+  const [showPoll, setShowPoll] = useState<boolean>(false);
+  const [poll, setPoll] = useState<object | null>({});
 
   //handle input
   const handleInputChange = (newMessage: string) => {
@@ -84,7 +84,6 @@ const ChatFooter: FC<ChatFooter> = ({ socket, onPollClick }) => {
 
   return (
     <div className="chat-footer-container flex flex-col gap-2 align-center">
-      {/* show uploaded file and image here */}
       {imageUri && (
         <div className="flex flex-row justify-end">
           <MessageBox
@@ -128,8 +127,14 @@ const ChatFooter: FC<ChatFooter> = ({ socket, onPollClick }) => {
           onCameraClick={handleCameraClick}
           onPollClick={onPollClick}
         />
-        {showCamera && <Camera setImageUri={handleCameraCapture} />}
         {showAudioRecorder && <AudioRecorderComponent setAudioUri={addAudioElement} />}
+        {showCamera && (
+          <Camera
+            setImageUri={handleCameraCapture}
+            isOpen={showCamera}
+            onClose={() => setShowCamera(false)}
+          />
+        )}
         <FileUpload handleFileUpload={handleFileUpload} />
         <InputArea handleInputChange={handleInputChange} resetTrigger={resetTrigger} />
         <SendButton
@@ -137,9 +142,11 @@ const ChatFooter: FC<ChatFooter> = ({ socket, onPollClick }) => {
           message={message}
           sentFile={uploadedFile}
           sentImage={imageUri}
+          sentPoll={poll}
           setSentFile={handleFileUpload}
           setSentImage={setImageUri}
           handleInputclear={handleInputClear}
+          setSentPoll={setPoll}
         />
       </div>
     </div>
