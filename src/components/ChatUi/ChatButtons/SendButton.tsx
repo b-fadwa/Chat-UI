@@ -52,7 +52,7 @@ const SendButton: FC<SendButtonProps> = ({
         socket.send(JSON.stringify({ content: message }));
         handleInputclear();
       }
-      if (sentPoll != null && sentPoll) {
+      if (sentPoll != null && sentPoll && JSON.stringify(sentPoll) != "{}") {
         console.log('Sending poll here:', sentPoll);
         socket.send(JSON.stringify({ poll: sentPoll }));
         setSentPoll(null);

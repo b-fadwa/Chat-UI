@@ -1,5 +1,6 @@
 import { FC, useCallback, useState } from 'react';
 import { MessageList } from 'react-chat-elements';
+import PollItem from './ChatButtons/PollItem';
 
 
 interface ChatBodyProps {
@@ -17,7 +18,6 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket }) => {
 
 
   const handlePollResponse = useCallback((option: object, parsedItem: any) => {
-    console.log("Poll response submitted:", parsedItem);
 
     if (parsedItem.pollID) {
       setPollResponses((prev) => {
@@ -56,31 +56,10 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket }) => {
 
   const renderPollResults = (poll: any) => {
     const counts = getOptionCounts(poll);
-    console.log("FROM POLL RESULTS", parsedItem.poll.pollID)
+
     return poll.options.map((option: string, i: number) => (
-
-      <div key={i} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px', gap: '10px' }}>
-
-        <input
-          type="checkbox"
-          id={`poll-${i}`}
-          name={parsedItem.poll.pollID}
-          value={option}
-          checked={parsedItem.poll.selectedOptions.some((item: any) => item.selectedOptions.option === option)}
-          onChange={() => handlePollResponse({ option }, poll)}
-        />
-
-        <div style={{ display: 'flex', flexDirection: 'column', flex: '1' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <label htmlFor={`poll-${i}`} style={{ fontWeight: 'bold' }}>
-              {option}
-            </label>
-            <span style={{ fontWeight: 'bold' }}>{counts[option] || 0}</span>
-          </div>
-          <meter min="0" max="100" value={(counts[option] || 0) * 10} style={{ width: '100%', }} />
-        </div>
-      </div>
-
+      <PollItem index={i} parsedItem={parsedItem} option={option} poll={poll} counts={counts} handlePollResponse={handlePollResponse}
+      />
     ));
 
   };
@@ -111,7 +90,6 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket }) => {
     }
     // file object
     if (parsedItem.file) {
-      console.log("file added")
       return {
         type: 'file',
         text: 'File attached',
@@ -130,7 +108,6 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket }) => {
     }
     //audio object
     if (parsedItem.audio) {
-      console.log("audio added")
       return {
         type: 'audio',
         title: parsedItem.sender,
