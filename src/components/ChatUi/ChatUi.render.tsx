@@ -42,6 +42,7 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
     socket.onmessage = (event) => {
       const receivedMessages = event.data.split('\n').filter((msg: any) => msg.trim() !== '');
       const parsedMessages = receivedMessages.map((msg: any) => JSON.parse(msg));
+      setMessages((prevMessages: any[]) => [...prevMessages, ...parsedMessages]);
       setFilteredMessages((prevMessages: any[]) => [...prevMessages, ...parsedMessages]);
       //n messages -> n-m convos
       // Store unique conversations
