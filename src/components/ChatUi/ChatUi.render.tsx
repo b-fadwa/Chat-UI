@@ -7,13 +7,18 @@ import ChatHeader from './ChatHeader';
 import ChatBody from './ChatBody';
 import ChatFooter from './ChatFooter';
 import PollModal from './ChatButtons/Poll';
+import ChatBar from './ChatButtons/ChatBar';
 
 const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames = [] }) => {
   const { connect } = useRenderer();
   const [socket, setSocket] = useState<any>();
   const [connectionStatus, setConnectionStatus] = useState('Connecting...');
   const [messages, setMessages] = useState<any>([]);
+  const [filteredMessages, setFilteredMessages] = useState<any>([]);
+  const [conversations, setConversations] = useState<any>([]);
+  const [users, setUsers] = useState<any>([]);
   const [showPollModal, setShowPollModal] = useState(false);
+  const [selectedConversation, setSelectedConversation] = useState<any>(null);
 
   useEffect(() => {
     console.log('socket useeffect executeeed!!!');
@@ -35,8 +40,25 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
     };
     //
     socket.onmessage = (event) => {
-      const datamessages = event.data.split('\n').filter((msg: any) => msg.trim() !== '');
-      setMessages((prev: any) => [...prev, ...datamessages]);
+      const receivedMessages = event.data.split('\n').filter((msg: any) => msg.trim() !== '');
+      const parsedMessages = receivedMessages.map((msg: any) => JSON.parse(msg));
+      setFilteredMessages((prevMessages: any[]) => [...prevMessages, ...parsedMessages]);
+      //n messages -> n-m convos
+      // Store unique conversations
+      setConversations((prevConversations: any) => {
+        const newConversations = [...prevConversations];
+        receivedMessages
+          .map((msg: any) => JSON.parse(msg))
+          .forEach((msg: any) => {
+            if (
+              msg.conversation &&
+              !newConversations.find((conv) => conv.ID === msg.conversation.ID)
+            ) {
+              newConversations.push(msg.conversation);
+            }
+          });
+        return newConversations;
+      });
     };
 
     socket.onclose = () => {
@@ -67,19 +89,40 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
       allowMultiple: poll.allowMultiple,
     };
     socket.send(JSON.stringify({ poll: pollMessage }));
-    setMessages((prev: any) => [...prev, JSON.stringify(pollMessage)]);
   };
+
+  //get messages by convo id
+  useEffect(() => {
+    if (!selectedConversation) {
+      setFilteredMessages([]);
+    } else {
+      const filtered = messages.filter(
+        (msg: any) => msg.conversation?.ID === selectedConversation.conversationID,
+      );
+      setFilteredMessages(filtered);
+    }
+  }, [selectedConversation, messages]);
 
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
-      <ChatHeader />
-      <ChatBody key={messages} data={messages} />
-      <ChatFooter socket={socket} onPollClick={() => setShowPollModal(true)} />
-      <PollModal
-        isOpen={showPollModal}
-        onClose={() => setShowPollModal(false)}
-        onSubmit={handlePollSubmit}
-      />
+      <div className="flex flex-row gap-2 w-full">
+        <div className="flex flex-col w-1/4">
+          <ChatHeader selectedConveration={selectedConversation} />
+          <ChatBar
+            setSelectedConversation={setSelectedConversation}
+            conversations={conversations}
+          />
+        </div>
+        <div className="flex flex-col w-3/4">
+          <ChatBody key={filteredMessages} data={filteredMessages} />
+          <ChatFooter socket={socket} onPollClick={() => setShowPollModal(true)} />
+        </div>
+        <PollModal
+          isOpen={showPollModal}
+          onClose={() => setShowPollModal(false)}
+          onSubmit={handlePollSubmit}
+        />
+      </div>
     </div>
   );
 };

@@ -78,12 +78,13 @@ const ChatFooter: FC<ChatFooter> = ({ socket, onPollClick }) => {
       if (audioBase64String) {
         setAudioUri(audioBase64String);
         socket.send(JSON.stringify({ audio: audioBase64String }));
+        setShowAudioRecorder(false);
       }
     };
   };
 
   return (
-    <div className="chat-footer-container flex flex-col gap-2 align-center">
+    <div className="chat-footer flex flex-col gap-2 align-center">
       {/* show uploaded file and image here */}
       {imageUri && (
         <div className="flex flex-row justify-end">
