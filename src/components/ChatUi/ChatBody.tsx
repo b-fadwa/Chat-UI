@@ -65,95 +65,88 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket }) => {
   };
 
   data = data.map((item: any) => {
-    parsedItem = JSON.parse(item);
-    isSender = parsedItem.sender && parsedItem.sender == 'Client1' ? false : true; //to be updated
-    if (
-      parsedItem.content == '' &&
-      parsedItem.sender != '' &&
-      !parsedItem.file &&
-      !parsedItem.audio &&
-      !parsedItem.image &&
-      !parsedItem.poll
-    ) {
+    isSender = item.sender && item.sender == 'Client1' ? false : true; //to be updated
+    if (item.content == '' && item.sender != '' && !item.file && !item.audio && !item.image) {
       return null;
     }
     //text
-    if (parsedItem.content) {
+    if (item.content){
       return {
         type: 'text',
-        text: parsedItem.content,
-        title: parsedItem.sender,
-        date: format(parsedItem.dateStamp),
-        dateString: format(parsedItem.dateStamp),
+        text: item.content,
+        title: item.sender,
+        date: format(item.dateStamp),
+        dateString: format(item.dateStamp),
         position: isSender ? 'left' : 'right',
       };
     }
     // file object
-    if (parsedItem.file) {
+    if (item.file){
       return {
         type: 'file',
         text: 'File attached',
-        title: parsedItem.sender,
-        date: format(parsedItem.dateStamp),
-        dateString: format(parsedItem.dateStamp),
+        title: item.sender,
+        date: format(item.dateStamp),
+        dateString: format(item.dateStamp),
         data: {
-          uri: parsedItem.file,
+          uri: item.file,
           status: {
             click: false,
             loading: 0,
           },
         },
-        file: parsedItem.file,
-        url: parsedItem.file,
+        file: item.file,
+        url: item.file,
         position: isSender ? 'left' : 'right',
       };
     }
     //audio object
-    if (parsedItem.audio) {
+    if (item.audio) {
       return {
         type: 'audio',
-        title: parsedItem.sender,
+        title: item.sender,
         data: {
-          audioURL: parsedItem.audio,
+          audioURL: item.audio,
           status: {
             click: false,
             loading: 0,
           },
         },
-        date: format(parsedItem.dateStamp),
-        dateString: format(parsedItem.dateStamp),
+        date: format(item.dateStamp),
+        dateString: format(item.dateStamp),
         position: isSender ? 'left' : 'right',
+        // onClick: () => handleAudioPlay(item.audio),
       };
     }
     //picture object
-    if (parsedItem.image) {
+    if (item.image) {
       return {
         type: 'photo',
-        title: parsedItem.sender,
+        title: item.sender,
         data: {
-          uri: parsedItem.image,
+          uri: item.image,
           status: {
             click: false,
             loading: 0,
           },
         },
-        date: format(parsedItem.dateStamp),
-        dateString: format(parsedItem.dateStamp),
+        date: format(item.dateStamp),
+        dateString: format(item.dateStamp),
         position: isSender ? 'left' : 'right',
       };
     }
     //poll Object
-    if (parsedItem.poll) {
-      if (parsedItem.poll) {
+    if (item.poll) {
+      if (item.poll) {
         return {
           type: 'text',
           text: (
             <div>
-              <h4>{parsedItem.poll.question}</h4>
-              {renderPollResults(parsedItem.poll)}
+              <h4>{item.poll.question}</h4>
+              {renderPollResults(item.poll)}
             </div>
           ),
-          title: parsedItem.sender,
+          title: item.sender,
           position: isSender ? 'left' : 'right',
         };
       }
@@ -171,7 +164,7 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket }) => {
   };
 
   return (
-    <div className="chat-body">
+    <div className="chat-body flex-grow h-3/4 overflow-y-scroll">
       <MessageList
         {...({ dataSource: data } as any)}
         onDownload={(message: any) => {
