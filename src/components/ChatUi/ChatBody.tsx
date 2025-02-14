@@ -48,9 +48,11 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket }) => {
       });
     }
     return counts;
+
+
   };
 
-  const renderPollResults = (poll: any) => {
+  const renderPollResults = (poll: any, flag: boolean) => {
     const counts = getOptionCounts(poll);
     return poll.options.map((option: string, i: number) => (
       <PollItem
@@ -148,9 +150,9 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket }) => {
         return {
           type: 'text',
           text: (
-            <div>
-              <h4>{parsedItem.poll.question}</h4>
-              {renderPollResults(parsedItem.poll)}
+            <div style={{ width: 300 }}>
+              <h4 style={{ backgroundColor: '#edf2fb', textAlign: 'center', padding: '10px', borderRadius: '8px' }}>{parsedItem.poll.question}</h4>
+              {renderPollResults(parsedItem.poll, true)}
             </div>
           ),
           title: parsedItem.sender,
