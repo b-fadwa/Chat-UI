@@ -9,7 +9,7 @@ interface ChatBarProps {
 const ChatBar: FC<ChatBarProps> = ({ setSelectedConversation, conversations }) => {
   const data = conversations.map((conversation) => {
     return {
-      avatar: 'https://img.freepik.com/free-icon/user_318-804790.jpg', 
+      avatar: 'https://img.freepik.com/free-icon/user_318-804790.jpg',
       title: 'Convo ' + conversation.ID,
       conversationID: conversation.ID,
     };

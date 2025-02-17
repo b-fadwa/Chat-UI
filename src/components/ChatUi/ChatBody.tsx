@@ -2,6 +2,7 @@ import { FC, useCallback, useState } from 'react';
 import { MessageList } from 'react-chat-elements';
 import { format } from 'timeago.js';
 import PollItem from './ChatButtons/PollItem';
+import PollHandler from './ChatButtons/PollHandler';
 
 interface ChatBodyProps {
   data: any;
@@ -141,19 +142,20 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket }) => {
       };
     }
     //poll Object
-      if (item.poll) {
-        return {
-          type: 'text',
-          text: (
-            <div>
-              <h4>{item.poll.question}</h4>
-              {renderPollResults(item)}
-            </div>
-          ),
-          title: item.sender,
-          position: isSender ? 'left' : 'right',
-        };
-      }
+    if (item.poll) {
+      return {
+        type: 'text',
+        // text: (
+        //   <div>
+        //     <h4>{item.poll.question}</h4>
+        //     {renderPollResults(item)}
+        //   </div>
+        // ),
+        text: <PollHandler poll={item.poll} socket={socket} />,
+        title: item.sender,
+        position: isSender ? 'left' : 'right',
+      };
+    }
   });
 
   const handleDownload = (message: any) => {
