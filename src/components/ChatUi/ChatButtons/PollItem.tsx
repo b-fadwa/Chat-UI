@@ -6,7 +6,7 @@ interface PollItemProps {
   option: string,
   poll: any,
   counts: Record<string, number>,
-  handlePollResponse: (option: object, parsedItem: any) => void
+  handlePollResponse: (option: object, parsedItem: any) => void,
 }
 
 const PollItem: FC<PollItemProps> = ({ index, parsedItem, option, poll, counts, handlePollResponse }) => {
