@@ -84,7 +84,7 @@ const ChatFooter: FC<ChatFooter> = ({ socket, onPollClick }) => {
   };
 
   return (
-    <div className="chat-footer flex flex-col gap-2 align-center">
+    <div className="chat-footer flex flex-col gap-2">
       {/* show uploaded file and image here */}
       {imageUri && (
         <div className="flex flex-row justify-end">

@@ -24,7 +24,6 @@ const PollModal: React.FC<PollModalProps> = ({ isOpen, onClose, onSubmit, pollID
             setSelectedOptions([]);
         }
     }, [isOpen]);
-    console.log('From Poll : ', pollID)
     const handleOptionChange = (index: number, value: string) => {
         const updatedOptions = [...options];
         updatedOptions[index] = value;

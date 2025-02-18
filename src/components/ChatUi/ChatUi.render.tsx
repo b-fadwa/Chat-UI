@@ -17,7 +17,6 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
   const [messages, setMessages] = useState<any>([]);
   const [filteredMessages, setFilteredMessages] = useState<any>([]);
   const [conversations, setConversations] = useState<any>([]);
-  const [users, setUsers] = useState<any>([]);
   const [showPollModal, setShowPollModal] = useState(false);
   const [pollID, setPollID] = useState<any>(getRandomId(50));
 
@@ -49,19 +48,27 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
       setFilteredMessages((prevMessages: any[]) => [...prevMessages, ...parsedMessages]);
       //n messages -> n-m convos
       // Store unique conversations
-      setConversations((prevConversations: any) => {
-        const newConversations = [...prevConversations];
-        receivedMessages
-          .map((msg: any) => JSON.parse(msg))
-          .forEach((msg: any) => {
-            if (
-              msg.conversation &&
-              !newConversations.find((conv) => conv.ID === msg.conversation.ID)
-            ) {
-              newConversations.push(msg.conversation);
-            }
-          });
-        return newConversations;
+      // once a new message is receievd, the last message should be updated in the chatBar
+      setConversations((prevConversations: any[]) => {
+        const newConversations = new Map(prevConversations.map((conv) => [conv.ID, conv]));
+        parsedMessages.forEach((msg: any) => {
+          if (!msg.conversation) return;
+          const conversationID = msg.conversation.ID;
+          if (newConversations.has(conversationID)) {
+            newConversations.set(conversationID, {
+              ...newConversations.get(conversationID),
+              lastMessage: msg,
+            });
+          } else {
+            newConversations.set(conversationID, {
+              ...msg.conversation,
+              sender: msg.sender,
+              receiver: msg.receiver,
+              lastMessage: msg,
+            });
+          }
+        });
+        return Array.from(newConversations.values());
       });
     };
 
@@ -113,15 +120,15 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
 
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
-      <div className="flex flex-row gap-2 w-full">
-        <div className="flex flex-col w-1/4">
+      <div className="chat-container flex flex-row gap-2 w-full h-full min-w-fit border-2">
+        <div className="chat-left-panel flex flex-col w-1/4 border-r-2">
           <ChatHeader selectedConveration={selectedConversation} />
           <ChatBar
             setSelectedConversation={setSelectedConversation}
             conversations={conversations}
           />
         </div>
-        <div className="flex flex-col w-3/4">
+        <div className="chat-right-panel flex flex-col w-3/4 p-2">
           <ChatBody
             key={filteredMessages.length}
             data={filteredMessages}

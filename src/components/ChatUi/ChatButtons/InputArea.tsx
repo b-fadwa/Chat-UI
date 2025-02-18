@@ -67,7 +67,7 @@ const InputArea = ({
   };
 
   return (
-    <div className="chat-input-area flex flex-row border-2 border-gray-100 p-2 rounded">
+    <div className="chat-input-area flex flex-row border-2 bg-white border-gray-100 p-2 rounded">
       <input
         type="text"
         className="focus:outline-none flex-grow"
