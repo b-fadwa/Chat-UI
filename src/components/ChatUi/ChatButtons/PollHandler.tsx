@@ -3,7 +3,7 @@ import PollItem from "./PollItem";
 
 interface PollProps {
     poll: any;
-    socket: WebSocket;
+    socket?: WebSocket;
 }
 
 const PollHandler: FC<PollProps> = ({ poll, socket }) => {

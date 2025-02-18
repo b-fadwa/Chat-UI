@@ -1,16 +1,14 @@
-import { FC, useCallback, useState } from 'react';
+import { FC } from 'react';
 import { MessageList } from 'react-chat-elements';
 import { format } from 'timeago.js';
-import PollItem from './ChatButtons/PollItem';
 import PollHandler from './ChatButtons/PollHandler';
 
 interface ChatBodyProps {
   data: any;
-  socket: WebSocket;
   pollID: number;
 }
 
-const ChatBody: FC<ChatBodyProps> = ({ data, socket }) => {
+const ChatBody: FC<ChatBodyProps> = ({ data }) => {
   let isSender: boolean;
 
   data = data.map((item: any) => {
@@ -75,6 +73,7 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket }) => {
     }
     //picture object
     if (item.image) {
+      console.log("image sent :", item.image)
       return {
         type: 'photo',
         title: item.sender,
@@ -94,13 +93,7 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket }) => {
     if (item.poll) {
       return {
         type: 'text',
-        // text: (
-        //   <div>
-        //     <h4>{item.poll.question}</h4>
-        //     {renderPollResults(item)}
-        //   </div>
-        // ),
-        text: <PollHandler poll={item.poll} socket={socket} />,
+        text: <PollHandler poll={item.poll} />,
         title: item.sender,
         position: isSender ? 'left' : 'right',
       };
