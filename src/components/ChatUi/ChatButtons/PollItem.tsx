@@ -1,12 +1,12 @@
 import { FC } from "react";
 
 interface PollItemProps {
-  index: number,
-  parsedItem: any,
-  option: string,
-  poll: any,
-  counts: Record<string, number>,
-  handlePollResponse: (option: object, parsedItem: any) => void,
+  index: number;
+  parsedItem: any;
+  option: string;
+  poll: any;
+  counts: Record<string, number>;
+  handlePollResponse: (option: { option: string }, parsedItem: any) => void;
 }
 
 const PollItem: FC<PollItemProps> = ({ index, parsedItem, option, poll, counts, handlePollResponse }) => {
