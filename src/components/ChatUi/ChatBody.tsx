@@ -6,9 +6,10 @@ import PollHandler from './ChatButtons/PollHandler';
 interface ChatBodyProps {
   data: any;
   pollID: number;
+  socket: WebSocket;
 }
 
-const ChatBody: FC<ChatBodyProps> = ({ data }) => {
+const ChatBody: FC<ChatBodyProps> = ({ data, socket }) => {
   let isSender: boolean;
 
   data = data.map((item: any) => {
@@ -93,7 +94,7 @@ const ChatBody: FC<ChatBodyProps> = ({ data }) => {
     if (item.poll) {
       return {
         type: 'text',
-        text: <PollHandler poll={item.poll} />,
+        text: <PollHandler poll={item.poll} socket={socket} sender={item.sender} />,
         title: item.sender,
         position: isSender ? 'left' : 'right',
       };
