@@ -41,14 +41,13 @@ const ChatUi: FC<IChatUiProps> = ({
     } else {
       console.log('WebSocket is not open. Current state:', socket.readyState);
     }
-    //
+
     socket.onopen = () => {
       setConnectionStatus('Connected');
       console.log('WebSocket connection established');
       setSocket(socket);
-      // socket.send(JSON.stringify({ userName: userName }));
     };
-    //
+
     socket.onmessage = (event) => {
       const receivedMessages = event.data.split('\n').filter((msg: any) => msg.trim() !== '');
       const parsedMessages = receivedMessages.map((msg: any) => JSON.parse(msg));

@@ -6,7 +6,6 @@ const commonSettings: TSetting[] = [
     key: 'userName',
     label: 'user name',
     type: ESetting.TEXT_FIELD,
-    // defaultValue: 'left',
   },
   {
     key: 'socketAddress',

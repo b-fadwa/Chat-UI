@@ -62,8 +62,6 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket, userName }) => {
     ));
   };
   data = data.map((item: any) => {
-    // let firstSender: any = data.length > 0 ? data[0].sender.lastName : null;
-    // let isSender: any = item.sender.lastName === firstSender ? false : true;
     let isSender: any = item.sender.lastName === userName ? false : true;
 
     if (
