@@ -77,7 +77,7 @@ const ChatFooter: FC<ChatFooter> = ({ socket, onPollClick, selectedReceiver }) =
       const audioBase64String = reader.result as string;
       if (audioBase64String) {
         setAudioUri(audioBase64String);
-        socket.send(JSON.stringify({ audio: audioBase64String }));
+        socket.send(JSON.stringify({ audio: audioBase64String, receiver: selectedReceiver }));
         setShowAudioRecorder(false);
       }
     };
