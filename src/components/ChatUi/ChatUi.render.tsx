@@ -10,7 +10,13 @@ import PollModal from './ChatButtons/Poll';
 import { getRandomId } from '@ws-ui/craftjs-utils';
 import ChatBar from './ChatButtons/ChatBar';
 
-const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames = [] }) => {
+const ChatUi: FC<IChatUiProps> = ({
+  userName,
+  socketAddress,
+  style,
+  className,
+  classNames = [],
+}) => {
   const { connect } = useRenderer();
   const [socket, setSocket] = useState<any>();
   const [connectionStatus, setConnectionStatus] = useState('Connecting...');
@@ -19,15 +25,16 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
   const [conversations, setConversations] = useState<any>([]);
   const [showPollModal, setShowPollModal] = useState(false);
   const [pollID, setPollID] = useState<any>(getRandomId(50));
-
+  const [users, setUsers] = useState<any>([]);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
   const [selectedConversation, setSelectedConversation] = useState<any>(null);
+  const [selectedReceiver, setSelectedReceiver] = useState<any>(null);
 
   useEffect(() => {
-    console.log('socket useeffect executeeed!!!');
-
     if (!socketAddress && socketAddress !== '') return;
-
-    const socket = new WebSocket(socketAddress);
+    const socketUrl = `${socketAddress}?userName=${userName}`; //used for login purposes
+    const socket = new WebSocket(socketUrl);
+    // const socket = new WebSocket(socketAddress);
     //testing purpose only
     if (socket.readyState === WebSocket.OPEN) {
       console.log('WebSocket is alive and open.');
@@ -39,6 +46,7 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
       setConnectionStatus('Connected');
       console.log('WebSocket connection established');
       setSocket(socket);
+      // socket.send(JSON.stringify({ userName: userName }));
     };
     //
     socket.onmessage = (event) => {
@@ -46,6 +54,9 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
       const parsedMessages = receivedMessages.map((msg: any) => JSON.parse(msg));
       setMessages((prevMessages: any[]) => [...prevMessages, ...parsedMessages]);
       setFilteredMessages((prevMessages: any[]) => [...prevMessages, ...parsedMessages]);
+      const usersArray = parsedMessages.flatMap((message: any) => message.users || []);
+      const groups = parsedMessages.flatMap((message: any) => message.groups || []);
+      setUsers((prevUsers: any[]) => [...prevUsers, ...usersArray, ...groups]);
       //n messages -> n-m convos
       // Store unique conversations
       // once a new message is receievd, the last message should be updated in the chatBar
@@ -102,21 +113,33 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
       allowMultiple: poll.allowMultiple,
       selectedOptions: poll.selectedOptions,
     };
-    console.log(socket);
     socket.send(JSON.stringify({ poll: pollMessage }));
   };
 
   //get messages by convo id
   useEffect(() => {
-    if (!selectedConversation) {
+    if (!selectedConversation && !selectedUser) {
       setFilteredMessages([]);
-    } else {
+      return;
+    }
+
+    if (selectedConversation) {
+      setSelectedReceiver(selectedConversation.title);
       const filtered = messages.filter(
         (msg: any) => msg.conversation?.ID === selectedConversation.conversationID,
       );
       setFilteredMessages(filtered);
+    } else if (selectedUser) {
+      setSelectedReceiver(selectedUser);
+      const filtered = messages.filter(
+        (msg: any) =>
+          msg?.sender?.lastName === selectedUser ||
+          msg?.receiver?.lastName === selectedUser ||
+          msg?.receiver?.label === selectedUser,
+      );
+      setFilteredMessages(filtered);
     }
-  }, [selectedConversation, messages]);
+  }, [selectedConversation, messages, selectedUser]);
 
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
@@ -126,6 +149,9 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
           <ChatBar
             setSelectedConversation={setSelectedConversation}
             conversations={conversations}
+            setSelectedUser={setSelectedUser}
+            allUsers={users}
+            userName={userName}
           />
         </div>
         <div className="chat-right-panel flex flex-col w-3/4 p-2">
@@ -134,8 +160,13 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
             data={filteredMessages}
             socket={socket}
             pollID={pollID}
+            userName={userName}
           />
-          <ChatFooter socket={socket} onPollClick={() => setShowPollModal(true)} />
+          <ChatFooter
+            socket={socket}
+            onPollClick={() => setShowPollModal(true)}
+            selectedReceiver={selectedReceiver}
+          />
         </div>
         <PollModal
           isOpen={showPollModal}

@@ -7,9 +7,10 @@ interface ChatBodyProps {
   data: any;
   socket: WebSocket;
   pollID: number;
+  userName: string;
 }
 
-const ChatBody: FC<ChatBodyProps> = ({ data, socket }) => {
+const ChatBody: FC<ChatBodyProps> = ({ data, socket, userName }) => {
   const [pollResponses, setPollResponses] = useState<Record<string, any>>({});
 
   const handlePollResponse = useCallback(
@@ -61,11 +62,13 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket }) => {
     ));
   };
   data = data.map((item: any) => {
-    let firstSender: any = data.length > 0 ? data[0].sender.firstName : null;
-    let isSender: any = item.sender.firstName === firstSender ? false : true;
+    // let firstSender: any = data.length > 0 ? data[0].sender.lastName : null;
+    // let isSender: any = item.sender.lastName === firstSender ? false : true;
+    let isSender: any = item.sender.lastName === userName ? false : true;
+
     if (
       item.content == '' &&
-      item.sender.firstName != '' &&
+      item.sender.lastName != '' &&
       !item.file &&
       !item.audio &&
       !item.image &&
@@ -78,7 +81,7 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket }) => {
       return {
         type: 'text',
         text: item.content,
-        title: item.sender.firstName,
+        title: item.sender.lastName,
         date: format(item.dateStamp),
         dateString: format(item.dateStamp),
         position: isSender ? 'left' : 'right',
@@ -90,7 +93,7 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket }) => {
       return {
         type: 'file',
         text: 'File attached',
-        title: item.sender.firstName,
+        title: item.sender.lastName,
         date: format(item.dateStamp),
         dateString: format(item.dateStamp),
         data: {
@@ -110,7 +113,7 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket }) => {
     if (item.audio) {
       return {
         type: 'audio',
-        title: item.sender.firstName,
+        title: item.sender.lastName,
         data: {
           audioURL: item.audio,
           status: {
@@ -128,7 +131,7 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket }) => {
     if (item.image) {
       return {
         type: 'photo',
-        title: item.sender.firstName,
+        title: item.sender.lastName,
         data: {
           uri: item.image,
           status: {
@@ -152,7 +155,7 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket }) => {
             {renderPollResults(item)}
           </div>
         ),
-        title: item.sender.firstName,
+        title: item.sender.lastName,
         position: isSender ? 'left' : 'right',
         avatar: item.sender.avatar || 'https://img.freepik.com/free-icon/user_318-804790.jpg',
       };

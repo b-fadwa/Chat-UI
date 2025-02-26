@@ -60,6 +60,6 @@ export default {
 } as T4DComponentConfig<IChatUiProps>;
 
 export interface IChatUiProps extends webforms.ComponentProps {
-  position: string;
+  userName: string; //used for login
   socketAddress: any;
 }

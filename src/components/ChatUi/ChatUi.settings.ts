@@ -3,10 +3,10 @@ import { BASIC_SETTINGS, DEFAULT_SETTINGS, load } from '@ws-ui/webform-editor';
 
 const commonSettings: TSetting[] = [
   {
-    key: 'position',
-    label: 'Position',
+    key: 'userName',
+    label: 'user name',
     type: ESetting.TEXT_FIELD,
-    defaultValue: 'left',
+    // defaultValue: 'left',
   },
   {
     key: 'socketAddress',

@@ -6,14 +6,14 @@ interface ChatHeaderProps {
 const ChatHeader: FC<ChatHeaderProps> = ({ selectedConveration }) => {
   const [title, setTitle] = useState();
 
-  useEffect(() => {
-    if (selectedConveration) {
-      setTitle(selectedConveration.title);
-    }
-  }, [selectedConveration]);
+  // useEffect(() => {
+  //   if (selectedConveration) {
+  //     setTitle(selectedConveration.title);
+  //   }
+  // }, [selectedConveration]);
 
   //receiver details
-  return <div className="chat-header">{title}</div>;
+  return <></>; // <div className="chat-header">{title}</div>;
 };
 
 export default ChatHeader;
