@@ -83,7 +83,7 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket, userName }) => {
         date: format(item.dateStamp),
         dateString: format(item.dateStamp),
         position: isSender ? 'left' : 'right',
-        avatar: item.sender.avatar || 'https://img.freepik.com/free-icon/user_318-804790.jpg',
+        avatar: item.senderAvatar || 'https://img.freepik.com/free-icon/user_318-804790.jpg',
       };
     }
     // file object
@@ -104,7 +104,7 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket, userName }) => {
         file: item.file,
         url: item.file,
         position: isSender ? 'left' : 'right',
-        avatar: item.sender.avatar || 'https://img.freepik.com/free-icon/user_318-804790.jpg',
+        avatar: item.senderAvatar || 'https://img.freepik.com/free-icon/user_318-804790.jpg',
       };
     }
     //audio object
@@ -122,7 +122,7 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket, userName }) => {
         date: format(item.dateStamp),
         dateString: format(item.dateStamp),
         position: isSender ? 'left' : 'right',
-        avatar: item.sender.avatar || 'https://img.freepik.com/free-icon/user_318-804790.jpg',
+        avatar: item.senderAvatar || 'https://img.freepik.com/free-icon/user_318-804790.jpg',
       };
     }
     //picture object
@@ -140,7 +140,7 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket, userName }) => {
         date: format(item.dateStamp),
         dateString: format(item.dateStamp),
         position: isSender ? 'left' : 'right',
-        avatar: item.sender.avatar || 'https://img.freepik.com/free-icon/user_318-804790.jpg',
+        avatar: item.senderAvatar || 'https://img.freepik.com/free-icon/user_318-804790.jpg',
       };
     }
     //poll Object
@@ -155,7 +155,7 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket, userName }) => {
         ),
         title: item.sender.lastName,
         position: isSender ? 'left' : 'right',
-        avatar: item.sender.avatar || 'https://img.freepik.com/free-icon/user_318-804790.jpg',
+        avatar: item.senderAvatar || 'https://img.freepik.com/free-icon/user_318-804790.jpg',
       };
     }
   });

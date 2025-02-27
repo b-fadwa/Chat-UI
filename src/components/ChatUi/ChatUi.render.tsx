@@ -132,9 +132,7 @@ const ChatUi: FC<IChatUiProps> = ({
       setSelectedReceiver(selectedUser);
       const filtered = messages.filter(
         (msg: any) =>
-          msg?.sender?.lastName === selectedUser ||
-          msg?.receiver?.lastName === selectedUser ||
-          msg?.receiver?.label === selectedUser,
+          msg?.receiver?.lastName === selectedUser || msg?.receiver?.label === selectedUser,
       );
       setFilteredMessages(filtered);
     }

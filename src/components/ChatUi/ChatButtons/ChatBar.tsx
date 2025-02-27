@@ -19,30 +19,34 @@ const ChatBar: FC<ChatBarProps> = ({
   userName,
 }) => {
   const [showUsers, setShowUsers] = useState(false);
-
   const data = conversations.map((conversation) => {
     const receiverName: string = conversation.receiver.lastName
       ? conversation.receiver.lastName // Receiver is a user
       : conversation.receiver.label; // Receiver is a group
-
     const isReceiverAGroup = !conversation.receiver.lastName; // No lastName means it's a group
 
     return {
       avatar:
-        conversation.receiver?.avatar || 'https://img.freepik.com/free-icon/user_318-804790.jpg',
+        conversation.lastMessage.receiverAvatar ||
+        'https://img.freepik.com/free-icon/user_318-804790.jpg',
       title: isReceiverAGroup
         ? receiverName // Always show group name if the receiver is a group
         : conversation.sender.lastName === userName
           ? receiverName === conversation.sender.lastName
-            ? receiverName + ' (You)' // If sender and receiver are the same, add (You)
+            ? receiverName // If sender and receiver are the same
             : receiverName // Otherwise, just show the receiver
           : conversation.sender.lastName, // Show sender's name when you're not the sender
       conversationID: conversation.ID,
-      subtitle: conversation.lastMessage ? conversation.lastMessage.content : 'No messages yet',
+      subtitle: conversation.receiver.label
+        ? conversation.lastMessage.sender.lastName + ':' + conversation.lastMessage.content
+        : conversation.lastMessage.content,
       date: format(conversation.lastMessage.dateStamp),
       dateString: format(conversation.lastMessage.dateStamp),
       unread: conversation.lastMessage.isRead ? 0 : 1, //to fix
-      statusColor: conversation.receiver.isActive ? 'green' : 'false',
+      // onclick: () => {//to fix
+      //   conversation.lastMessage.isRead = true;
+      // },
+      statusColor: conversation.receiver.isActive ? 'green' : 'transparent',
     };
   });
 
@@ -56,6 +60,8 @@ const ChatBar: FC<ChatBarProps> = ({
               setShowUsers(false);
               setSelectedUser(user);
             }}
+            setShowUsers={setShowUsers}
+            setSelectedConversation={setSelectedConversation}
           />
         ) : data.length === 0 ? (
           <p className="text-gray-500 text-center">Start a conversation to see messages here.</p>
@@ -67,19 +73,21 @@ const ChatBar: FC<ChatBarProps> = ({
                 setSelectedConversation(conversation);
               },
             } as any)}
-            className="chat-bar-list"
+            className="chat-bar-list overflow-auto"
           />
         )}
       </div>
-      <button
-        className="go-to-users p-4 rounded bg-gray-100 bottom-px sticky"
-        onClick={() => {
-          setSelectedConversation(null);
-          setShowUsers(true);
-        }}
-      >
-        View all users
-      </button>
+      {!showUsers && (
+        <button
+          className="go-to-users p-4 bg-gray-100 bottom-0 sticky"
+          onClick={() => {
+            setSelectedConversation(null);
+            setShowUsers(true);
+          }}
+        >
+          View all users
+        </button>
+      )}
     </div>
   );
 };
