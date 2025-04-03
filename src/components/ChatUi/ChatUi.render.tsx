@@ -155,6 +155,7 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
             setSelectedUser={setSelectedUser}
             allUsers={users}
             userName={currentUser}
+            socket={socket}
           />
         </div>
         <div className="chat-right-panel flex flex-col w-3/4 p-2">

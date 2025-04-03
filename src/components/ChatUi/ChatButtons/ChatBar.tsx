@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { ChatList } from 'react-chat-elements';
 import { format } from 'timeago.js';
 import UsersBar from './Users';
@@ -9,6 +9,7 @@ interface ChatBarProps {
   allUsers: any[];
   setSelectedUser: (user: any) => void;
   userName: string;
+  socket: any;
 }
 
 const ChatBar: FC<ChatBarProps> = ({
@@ -17,9 +18,27 @@ const ChatBar: FC<ChatBarProps> = ({
   allUsers,
   setSelectedUser,
   userName,
+  socket,
 }) => {
   const [showUsers, setShowUsers] = useState(false);
-  const data = conversations.map((conversation) => {
+  const [chatData, setChatData] = useState(conversations);
+
+  useEffect(() => {
+    setChatData(conversations);
+  }, [conversations]);
+
+  const handleConversationClick = (conversation: any) => {
+    setSelectedConversation(conversation);
+    const updatedConversations = chatData.map((convo) =>
+      convo.ID === conversation.conversationID
+        ? { ...convo, lastMessage: { ...convo.lastMessage, isRead: true } }
+        : convo,
+    );
+    socket.send(JSON.stringify({ isRead: true, conversationID: conversation.conversationID })); //to update DB
+    setChatData(updatedConversations); // Update state to trigger re-render
+  };
+
+  const data = chatData.map((conversation) => {
     const receiverName: string = conversation.receiver.lastName
       ? conversation.receiver.lastName // Receiver is a user
       : conversation.receiver.label; // Receiver is a group
@@ -27,10 +46,13 @@ const ChatBar: FC<ChatBarProps> = ({
     const content = conversation.lastMessage.content //no text message => possible attachment
       ? conversation.lastMessage.content
       : 'Attachment received';
+    const receiverPic =
+      conversation.lastMessage.sender.lastName === userName
+        ? conversation.lastMessage.receiverAvatar
+        : conversation.lastMessage.senderAvatar; //receiver pic
+
     return {
-      avatar:
-        conversation.lastMessage.receiverAvatar ||
-        'https://img.freepik.com/free-icon/user_318-804790.jpg',
+      avatar: receiverPic || 'https://img.freepik.com/free-icon/user_318-804790.jpg', //avatar of the convo receiver
       title: isReceiverAGroup
         ? receiverName // Always show group name if the receiver is a group
         : conversation.sender.lastName === userName
@@ -44,10 +66,7 @@ const ChatBar: FC<ChatBarProps> = ({
         : content,
       date: format(conversation.lastMessage.dateStamp),
       dateString: format(conversation.lastMessage.dateStamp),
-      unread: conversation.lastMessage.isRead ? 0 : 1, //to fix
-      // onclick: () => {//to fix
-      //   conversation.lastMessage.isRead = true;
-      // },
+      unread: conversation.lastMessage.isRead ? 0 : 1,
       statusColor: conversation.receiver.isActive ? 'green' : 'transparent',
     };
   });
@@ -72,7 +91,7 @@ const ChatBar: FC<ChatBarProps> = ({
             {...({
               dataSource: data,
               onClick: (conversation: any) => {
-                setSelectedConversation(conversation);
+                handleConversationClick(conversation);
               },
             } as any)}
             className="chat-bar-list overflow-auto"
