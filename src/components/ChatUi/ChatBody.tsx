@@ -7,11 +7,10 @@ interface ChatBodyProps {
   data: any;
   socket: WebSocket;
   pollID: number;
+  userName: string;
 }
 
-const ChatBody: FC<ChatBodyProps> = ({ data, socket }) => {
-  let isSender: boolean;
-
+const ChatBody: FC<ChatBodyProps> = ({ data, socket, userName }) => {
   const [pollResponses, setPollResponses] = useState<Record<string, any>>({});
 
   const handlePollResponse = useCallback(
@@ -62,12 +61,12 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket }) => {
       />
     ));
   };
-
   data = data.map((item: any) => {
-    isSender = item.sender && item.sender == 'Client1' ? false : true; //to be updated
+    let isSender: any = item.sender.lastName === userName ? false : true;
+
     if (
       item.content == '' &&
-      item.sender != '' &&
+      item.sender.lastName != '' &&
       !item.file &&
       !item.audio &&
       !item.image &&
@@ -80,10 +79,11 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket }) => {
       return {
         type: 'text',
         text: item.content,
-        title: item.sender,
+        title: item.sender.lastName,
         date: format(item.dateStamp),
         dateString: format(item.dateStamp),
         position: isSender ? 'left' : 'right',
+        avatar: item.senderAvatar || 'https://img.freepik.com/free-icon/user_318-804790.jpg',
       };
     }
     // file object
@@ -91,7 +91,7 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket }) => {
       return {
         type: 'file',
         text: 'File attached',
-        title: item.sender,
+        title: item.sender.lastName,
         date: format(item.dateStamp),
         dateString: format(item.dateStamp),
         data: {
@@ -104,13 +104,14 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket }) => {
         file: item.file,
         url: item.file,
         position: isSender ? 'left' : 'right',
+        avatar: item.senderAvatar || 'https://img.freepik.com/free-icon/user_318-804790.jpg',
       };
     }
     //audio object
     if (item.audio) {
       return {
         type: 'audio',
-        title: item.sender,
+        title: item.sender.lastName,
         data: {
           audioURL: item.audio,
           status: {
@@ -121,13 +122,14 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket }) => {
         date: format(item.dateStamp),
         dateString: format(item.dateStamp),
         position: isSender ? 'left' : 'right',
+        avatar: item.senderAvatar || 'https://img.freepik.com/free-icon/user_318-804790.jpg',
       };
     }
     //picture object
     if (item.image) {
       return {
         type: 'photo',
-        title: item.sender,
+        title: item.sender.lastName,
         data: {
           uri: item.image,
           status: {
@@ -138,22 +140,24 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket }) => {
         date: format(item.dateStamp),
         dateString: format(item.dateStamp),
         position: isSender ? 'left' : 'right',
+        avatar: item.senderAvatar || 'https://img.freepik.com/free-icon/user_318-804790.jpg',
       };
     }
     //poll Object
-      if (item.poll) {
-        return {
-          type: 'text',
-          text: (
-            <div>
-              <h4>{item.poll.question}</h4>
-              {renderPollResults(item)}
-            </div>
-          ),
-          title: item.sender,
-          position: isSender ? 'left' : 'right',
-        };
-      }
+    if (item.poll) {
+      return {
+        type: 'text',
+        text: (
+          <div>
+            <h4>{item.poll.question}</h4>
+            {renderPollResults(item)}
+          </div>
+        ),
+        title: item.sender.lastName,
+        position: isSender ? 'left' : 'right',
+        avatar: item.senderAvatar || 'https://img.freepik.com/free-icon/user_318-804790.jpg',
+      };
+    }
   });
 
   const handleDownload = (message: any) => {
@@ -168,13 +172,17 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket }) => {
 
   return (
     <div className="chat-body flex-grow h-3/4 overflow-y-scroll">
-      <MessageList
-        {...({ dataSource: data } as any)}
-        onDownload={(message: any) => {
-          handleDownload(message);
-        }}
-        className="message-list"
-      />
+      {data.length === 0 ? (
+        <p className="text-gray-500 text-center">Select a conversation or start a new one!</p>
+      ) : (
+        <MessageList
+          {...({ dataSource: data } as any)}
+          onDownload={(message: any) => {
+            handleDownload(message);
+          }}
+          className="message-list"
+        />
+      )}
     </div>
   );
 };
