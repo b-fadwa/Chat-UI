@@ -13,9 +13,7 @@ const FileUpload = ({ handleFileUpload }: { handleFileUpload: (file: File) => vo
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      console.log('Selected file:', file.name);
       handleFileUpload(file);
-      console.log(file.name);
     }
   };
 
@@ -23,7 +21,7 @@ const FileUpload = ({ handleFileUpload }: { handleFileUpload: (file: File) => vo
     <div>
       <input type="file" className="hidden" ref={fileInputRef} onChange={handleFileChange} />
       <button onClick={handleButtonClick} className="p-4 rounded bg-gray-100">
-        <MdOutlineFileUpload className='text-xl'/>
+        <MdOutlineFileUpload className="text-xl" />
       </button>
     </div>
   );

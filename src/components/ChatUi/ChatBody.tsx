@@ -11,7 +11,6 @@ interface ChatBodyProps {
 }
 
 const ChatBody: FC<ChatBodyProps> = ({ data, socket, userName }) => {
-
   data = data.map((item: any) => {
     let isSender: any = item.sender.lastName === userName ? false : true;
 
@@ -78,7 +77,6 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket, userName }) => {
     }
     //picture object
     if (item.image) {
-      console.log("image sent :", item.image)
       return {
         type: 'photo',
         title: item.sender.lastName,
