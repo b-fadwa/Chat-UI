@@ -1,66 +1,17 @@
-import { FC, useCallback, useState } from 'react';
+import { FC } from 'react';
 import { MessageList } from 'react-chat-elements';
 import { format } from 'timeago.js';
-import PollItem from './ChatButtons/PollItem';
+import PollHandler from './ChatButtons/PollHandler';
 
 interface ChatBodyProps {
   data: any;
-  socket: WebSocket;
   pollID: number;
+  socket: WebSocket;
   userName: string;
 }
 
 const ChatBody: FC<ChatBodyProps> = ({ data, socket, userName }) => {
-  const [pollResponses, setPollResponses] = useState<Record<string, any>>({});
 
-  const handlePollResponse = useCallback(
-    (option: object, parsedItem: any) => {
-      if (parsedItem.pollID) {
-        setPollResponses((prev) => {
-          const updatedResponses = {
-            ...prev,
-            [parsedItem.pollID]: [...(prev[parsedItem.pollID] || []), option],
-          };
-          return updatedResponses;
-        });
-      }
-      if (socket && parsedItem.pollID) {
-        const pollData = { pollID: parsedItem.pollID, selectedOptions: option };
-        socket.send(JSON.stringify({ poll: pollData }));
-      }
-    },
-    [socket],
-  );
-
-  const getOptionCounts = (poll: any) => {
-    const counts: Record<string, number> = {};
-
-    poll.selectedOptions.forEach((item: any) => {
-      const option = item.selectedOptions.option;
-      counts[option] = (counts[option] || 0) + 1;
-    });
-    if (pollResponses[poll.pollID]) {
-      pollResponses[poll.pollID].forEach((item: any) => {
-        const option = item.option;
-        counts[option] = (counts[option] || 0) + 1;
-      });
-    }
-    return counts;
-  };
-
-  const renderPollResults = (item: any) => {
-    const counts = getOptionCounts(item.poll);
-    return item.poll.options.map((option: string, i: number) => (
-      <PollItem
-        index={i}
-        parsedItem={item}
-        option={option}
-        poll={item.poll}
-        counts={counts}
-        handlePollResponse={handlePollResponse}
-      />
-    ));
-  };
   data = data.map((item: any) => {
     let isSender: any = item.sender.lastName === userName ? false : true;
 
@@ -127,6 +78,7 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket, userName }) => {
     }
     //picture object
     if (item.image) {
+      console.log("image sent :", item.image)
       return {
         type: 'photo',
         title: item.sender.lastName,
@@ -147,12 +99,7 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket, userName }) => {
     if (item.poll) {
       return {
         type: 'text',
-        text: (
-          <div>
-            <h4>{item.poll.question}</h4>
-            {renderPollResults(item)}
-          </div>
-        ),
+        text: <PollHandler poll={item.poll} socket={socket} sender={item.sender} />,
         title: item.sender.lastName,
         position: isSender ? 'left' : 'right',
         avatar: item.senderAvatar || 'https://img.freepik.com/free-icon/user_318-804790.jpg',
