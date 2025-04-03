@@ -11,9 +11,10 @@ import { MessageBox } from 'react-chat-elements';
 interface ChatFooter {
   socket: any;
   onPollClick: () => void;
+  selectedReceiver: any;
 }
 
-const ChatFooter: FC<ChatFooter> = ({ socket, onPollClick }) => {
+const ChatFooter: FC<ChatFooter> = ({ socket, onPollClick, selectedReceiver }) => {
   const [message, setMessage] = useState<any>('');
   const [uploadedFile, setUploadedFile] = useState<any>(null);
   const [imageUri, setImageUri] = useState<string>('');
@@ -23,7 +24,6 @@ const ChatFooter: FC<ChatFooter> = ({ socket, onPollClick }) => {
   const [showCamera, setShowCamera] = useState<boolean>(false);
   const [resetTrigger, setResetTrigger] = useState(false);
   const [showPoll, setShowPoll] = useState<boolean>(false);
-  const [poll, setPoll] = useState<object | null>({});
 
   //handle input
   const handleInputChange = (newMessage: string) => {
@@ -77,14 +77,17 @@ const ChatFooter: FC<ChatFooter> = ({ socket, onPollClick }) => {
       const audioBase64String = reader.result as string;
       if (audioBase64String) {
         setAudioUri(audioBase64String);
-        socket.send(JSON.stringify({ audio: audioBase64String }));
+        socket.send(JSON.stringify({ audio: audioBase64String, receiver: selectedReceiver }));
         setShowAudioRecorder(false);
       }
     };
   };
 
   return (
-    <div className="chat-footer flex flex-col gap-2 align-center">
+    <div className="chat-footer flex flex-col gap-2">
+      <div className="receiver-name  bg-gray-100 px-3 py-2 rounded-md inline-block my-1">
+        Send message to : {selectedReceiver ? selectedReceiver : 'Me'}
+      </div>
       {/* show uploaded file and image here */}
       {imageUri && (
         <div className="flex flex-row justify-end">
@@ -144,11 +147,10 @@ const ChatFooter: FC<ChatFooter> = ({ socket, onPollClick }) => {
           message={message}
           sentFile={uploadedFile}
           sentImage={imageUri}
-          sentPoll={poll}
           setSentFile={handleFileUpload}
           setSentImage={setImageUri}
           handleInputclear={handleInputClear}
-          setSentPoll={setPoll}
+          receiver={selectedReceiver}
         />
       </div>
     </div>

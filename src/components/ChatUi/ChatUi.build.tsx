@@ -5,7 +5,7 @@ import { MessageBox } from 'react-chat-elements';
 
 import { IChatUiProps } from './ChatUi.config';
 
-const ChatUi: FC<IChatUiProps> = ({ position, style, className, classNames = [] }) => {
+const ChatUi: FC<IChatUiProps> = ({ style, className, classNames = [] }) => {
   const {
     connectors: { connect },
   } = useEnhancedNode();
@@ -14,7 +14,6 @@ const ChatUi: FC<IChatUiProps> = ({ position, style, className, classNames = [] 
     <div ref={connect} style={style} className={cn(className, classNames)}>
       <MessageBox
         {...({
-          position: { position },
           type: 'text',
           title: 'Message Box Title',
           text: 'Here is a text type message box',

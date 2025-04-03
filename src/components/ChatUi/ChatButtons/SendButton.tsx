@@ -6,11 +6,10 @@ interface SendButtonProps {
   message: string;
   sentFile: File | null;
   sentImage: string;
-  sentPoll: object | null;
   setSentFile: (file: File | null) => void;
   setSentImage: (image: string) => void;
-  setSentPoll: (poll: object | null) => void;
   handleInputclear: () => void;
+  receiver: string;
 }
 
 const SendButton: FC<SendButtonProps> = ({
@@ -18,11 +17,10 @@ const SendButton: FC<SendButtonProps> = ({
   message,
   sentFile,
   sentImage,
-  sentPoll,
   setSentFile,
   setSentImage,
-  setSentPoll,
   handleInputclear,
+  receiver,
 }) => {
   const sendMessage = () => {
     if (socket) {
@@ -37,25 +35,20 @@ const SendButton: FC<SendButtonProps> = ({
             fileType: sentFile.type,
             fileContent: base64FileContent,
           };
-          socket.send(JSON.stringify({ file: payload.fileContent }));
+          socket.send(JSON.stringify({ file: payload.fileContent, receiver: receiver }));
         };
         reader.readAsDataURL(sentFile);
         setSentFile(null);
       }
       if (sentImage != '' && sentImage != null) {
         console.log('Sending image here:', sentImage);
-        socket.send(JSON.stringify({ image: sentImage }));
+        socket.send(JSON.stringify({ image: sentImage, receiver: receiver }));
         setSentImage('');
       }
       if (message) {
         console.log('Message sent:', message);
-        socket.send(JSON.stringify({ content: message }));
+        socket.send(JSON.stringify({ content: message, receiver: receiver }));
         handleInputclear();
-      }
-      if (sentPoll != null && sentPoll && JSON.stringify(sentPoll) != "{}") {
-        console.log('Sending poll here:', sentPoll);
-        socket.send(JSON.stringify({ poll: sentPoll }));
-        setSentPoll(null);
       }
     }
   };

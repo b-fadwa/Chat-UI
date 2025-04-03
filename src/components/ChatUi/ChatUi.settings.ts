@@ -3,12 +3,6 @@ import { BASIC_SETTINGS, DEFAULT_SETTINGS, load } from '@ws-ui/webform-editor';
 
 const commonSettings: TSetting[] = [
   {
-    key: 'position',
-    label: 'Position',
-    type: ESetting.TEXT_FIELD,
-    defaultValue: 'left',
-  },
-  {
     key: 'socketAddress',
     label: 'Socket Address',
     type: ESetting.TEXT_FIELD,
