@@ -1,4 +1,4 @@
-import { useRenderer } from '@ws-ui/webform-editor';
+import { useRenderer, useSources } from '@ws-ui/webform-editor';
 import cn from 'classnames';
 import { FC, useEffect, useState } from 'react';
 
@@ -10,16 +10,9 @@ import PollModal from './ChatButtons/Poll';
 import { getRandomId } from '@ws-ui/craftjs-utils';
 import ChatBar from './ChatButtons/ChatBar';
 
-const ChatUi: FC<IChatUiProps> = ({
-  userName,
-  socketAddress,
-  style,
-  className,
-  classNames = [],
-}) => {
+const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames = [] }) => {
   const { connect } = useRenderer();
   const [socket, setSocket] = useState<any>();
-  const [connectionStatus, setConnectionStatus] = useState('Connecting...');
   const [messages, setMessages] = useState<any>([]);
   const [filteredMessages, setFilteredMessages] = useState<any>([]);
   const [conversations, setConversations] = useState<any>([]);
@@ -29,10 +22,27 @@ const ChatUi: FC<IChatUiProps> = ({
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [selectedConversation, setSelectedConversation] = useState<any>(null);
   const [selectedReceiver, setSelectedReceiver] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<string>(''); //name of the connected user
+  const {
+    sources: { datasource: ds },
+  } = useSources();
 
   useEffect(() => {
-    if (!socketAddress && socketAddress !== '') return;
-    const socketUrl = `${socketAddress}?userName=${userName}`; //used for login purposes
+    if (!ds) return;
+    const listener = async (/* event */) => {
+      const v = await ds.getValue();
+      setCurrentUser(v);
+    };
+    listener();
+    ds.addListener('changed', listener);
+    return () => {
+      ds.removeListener('changed', listener);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!currentUser || !socketAddress) return;
+    const socketUrl = `${socketAddress}?userName=${currentUser}`; //used for login purposes (get name from ds)
     const socket = new WebSocket(socketUrl);
     // const socket = new WebSocket(socketAddress);
     //testing purpose only
@@ -43,7 +53,6 @@ const ChatUi: FC<IChatUiProps> = ({
     }
 
     socket.onopen = () => {
-      setConnectionStatus('Connected');
       console.log('WebSocket connection established');
       setSocket(socket);
     };
@@ -83,7 +92,6 @@ const ChatUi: FC<IChatUiProps> = ({
     };
 
     socket.onclose = () => {
-      setConnectionStatus('Disconnected');
       console.log('WebSocket connection closed');
     };
     // Event listener for errors
@@ -96,7 +104,7 @@ const ChatUi: FC<IChatUiProps> = ({
         socket.close();
       }
     };
-  }, [socketAddress]);
+  }, [socketAddress, currentUser]);
 
   const handlePollSubmit = (poll: {
     pollID: number;
@@ -148,7 +156,7 @@ const ChatUi: FC<IChatUiProps> = ({
             conversations={conversations}
             setSelectedUser={setSelectedUser}
             allUsers={users}
-            userName={userName}
+            userName={currentUser}
           />
         </div>
         <div className="chat-right-panel flex flex-col w-3/4 p-2">
@@ -157,7 +165,7 @@ const ChatUi: FC<IChatUiProps> = ({
             data={filteredMessages}
             socket={socket}
             pollID={pollID}
-            userName={userName}
+            userName={currentUser}
           />
           <ChatFooter
             socket={socket}
