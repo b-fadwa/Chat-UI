@@ -12,7 +12,6 @@ interface DropDownProps {
 }
 
 const DropDown = ({ onOptionSelect, onAudioClick, onCameraClick, onPollClick }: DropDownProps) => {
-
   const items = [
     {
       text: 'Camera',
@@ -43,9 +42,9 @@ const DropDown = ({ onOptionSelect, onAudioClick, onCameraClick, onPollClick }: 
   return (
     <div className="w-fit">
       <Dropdown
-        {...({
+        {...{
           style: {},
-          animationPosition:"southwest",
+          animationPosition: 'southwest',
           className: 'dropdown-css bg-gray-100 p-2 flex items-center rounded h-full',
           onClick: () => {},
           buttonProps: {
@@ -57,13 +56,10 @@ const DropDown = ({ onOptionSelect, onAudioClick, onCameraClick, onPollClick }: 
             },
           },
           onSelect: (e: any) => {
-            console.log('onSelect event (index):', e);
             const selectedItem = items[e];
 
             if (selectedItem) {
               onOptionSelect(selectedItem.text);
-              console.log('Selected Item:', selectedItem.text);
-
               if (selectedItem.text === 'Camera') {
                 onCameraClick();
               } else if (selectedItem.text === 'Send a voice clip') {
@@ -77,7 +73,7 @@ const DropDown = ({ onOptionSelect, onAudioClick, onCameraClick, onPollClick }: 
           },
 
           items: items,
-        })}
+        }}
       />
     </div>
   );

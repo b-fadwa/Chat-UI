@@ -119,7 +119,7 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
       allowMultiple: poll.allowMultiple,
       selectedOptions: poll.selectedOptions,
     };
-    socket.send(JSON.stringify({ poll: pollMessage }));
+    socket.send(JSON.stringify({ poll: pollMessage, receiver: selectedReceiver }));
   };
 
   //get messages by convo id

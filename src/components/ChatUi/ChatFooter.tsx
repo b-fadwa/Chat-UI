@@ -18,12 +18,9 @@ const ChatFooter: FC<ChatFooter> = ({ socket, onPollClick, selectedReceiver }) =
   const [message, setMessage] = useState<any>('');
   const [uploadedFile, setUploadedFile] = useState<any>(null);
   const [imageUri, setImageUri] = useState<string>('');
-  const [audioUri, setAudioUri] = useState<string | null>(null);
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [showAudioRecorder, setShowAudioRecorder] = useState<boolean>(false);
   const [showCamera, setShowCamera] = useState<boolean>(false);
   const [resetTrigger, setResetTrigger] = useState(false);
-  const [showPoll, setShowPoll] = useState<boolean>(false);
 
   //handle input
   const handleInputChange = (newMessage: string) => {
@@ -40,8 +37,6 @@ const ChatFooter: FC<ChatFooter> = ({ socket, onPollClick, selectedReceiver }) =
   };
 
   const handleOptionSelect = (option: string) => {
-    setSelectedOption(option);
-
     if (option === 'audio') {
       setShowAudioRecorder(true);
       setShowCamera(false);
@@ -51,7 +46,6 @@ const ChatFooter: FC<ChatFooter> = ({ socket, onPollClick, selectedReceiver }) =
     } else if (option === 'poll') {
       setShowCamera(false);
       setShowAudioRecorder(false);
-      setShowPoll(true);
     } else {
       setShowAudioRecorder(false);
       setShowCamera(false);
@@ -76,7 +70,6 @@ const ChatFooter: FC<ChatFooter> = ({ socket, onPollClick, selectedReceiver }) =
     reader.onloadend = () => {
       const audioBase64String = reader.result as string;
       if (audioBase64String) {
-        setAudioUri(audioBase64String);
         socket.send(JSON.stringify({ audio: audioBase64String, receiver: selectedReceiver }));
         setShowAudioRecorder(false);
       }

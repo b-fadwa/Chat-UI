@@ -25,7 +25,6 @@ const SendButton: FC<SendButtonProps> = ({
   const sendMessage = () => {
     if (socket) {
       if (sentFile) {
-        console.log('Sending file:', sentFile);
         const reader = new FileReader();
         reader.onload = () => {
           const base64FileContent = reader.result?.toString();
@@ -41,12 +40,10 @@ const SendButton: FC<SendButtonProps> = ({
         setSentFile(null);
       }
       if (sentImage != '' && sentImage != null) {
-        console.log('Sending image here:', sentImage);
         socket.send(JSON.stringify({ image: sentImage, receiver: receiver }));
         setSentImage('');
       }
       if (message) {
-        console.log('Message sent:', message);
         socket.send(JSON.stringify({ content: message, receiver: receiver }));
         handleInputclear();
       }
