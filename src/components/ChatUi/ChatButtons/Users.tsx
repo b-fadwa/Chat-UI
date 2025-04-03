@@ -19,6 +19,7 @@ const UsersBar: FC<UsersBarProps> = ({
       avatar: 'https://img.freepik.com/free-icon/user_318-804790.jpg', //to fix
       title: user.lastName ? user.lastName : user.label,
       userID: user.ID,
+      date: null,
     };
   });
 

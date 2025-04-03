@@ -24,7 +24,9 @@ const ChatBar: FC<ChatBarProps> = ({
       ? conversation.receiver.lastName // Receiver is a user
       : conversation.receiver.label; // Receiver is a group
     const isReceiverAGroup = !conversation.receiver.lastName; // No lastName means it's a group
-
+    const content = conversation.lastMessage.content //no text message => possible attachment
+      ? conversation.lastMessage.content
+      : 'Attachment received';
     return {
       avatar:
         conversation.lastMessage.receiverAvatar ||
@@ -38,8 +40,8 @@ const ChatBar: FC<ChatBarProps> = ({
           : conversation.sender.lastName, // Show sender's name when you're not the sender
       conversationID: conversation.ID,
       subtitle: conversation.receiver.label
-        ? conversation.lastMessage.sender.lastName + ':' + conversation.lastMessage.content
-        : conversation.lastMessage.content,
+        ? conversation.lastMessage.sender.lastName + ':' + content
+        : content,
       date: format(conversation.lastMessage.dateStamp),
       dateString: format(conversation.lastMessage.dateStamp),
       unread: conversation.lastMessage.isRead ? 0 : 1, //to fix

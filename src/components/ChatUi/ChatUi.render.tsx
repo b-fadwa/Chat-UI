@@ -3,7 +3,6 @@ import cn from 'classnames';
 import { FC, useEffect, useState } from 'react';
 
 import { IChatUiProps } from './ChatUi.config';
-import ChatHeader from './ChatHeader';
 import ChatBody from './ChatBody';
 import ChatFooter from './ChatFooter';
 import PollModal from './ChatButtons/Poll';
@@ -150,7 +149,6 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
     <div ref={connect} style={style} className={cn(className, classNames)}>
       <div className="chat-container flex flex-row gap-2 w-full h-full min-w-fit border-2">
         <div className="chat-left-panel flex flex-col w-1/4 border-r-2">
-          <ChatHeader selectedConveration={selectedConversation} />
           <ChatBar
             setSelectedConversation={setSelectedConversation}
             conversations={conversations}
