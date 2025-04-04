@@ -24,7 +24,13 @@ const ChatBar: FC<ChatBarProps> = ({
   const [chatData, setChatData] = useState(conversations);
 
   useEffect(() => {
-    setChatData(conversations);
+    //ordering the list by last received message
+    const sortedConversations = [...conversations].sort((a, b) => {
+      return (
+        new Date(b.lastMessage.dateStamp).getTime() - new Date(a.lastMessage.dateStamp).getTime()
+      );
+    });
+    setChatData(sortedConversations);
   }, [conversations]);
 
   const handleConversationClick = (conversation: any) => {
