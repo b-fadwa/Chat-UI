@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC } from 'react';
 
 interface PollItemProps {
   index: number;
@@ -7,33 +7,43 @@ interface PollItemProps {
   poll: any;
   counts: Record<string, number>;
   handlePollResponse: (option: { option: string }, parsedItem: any) => void;
+  selectedOptions: any[];
 }
 
-const PollItem: FC<PollItemProps> = ({ index, parsedItem, option, poll, counts, handlePollResponse }) => {
-
+const PollItem: FC<PollItemProps> = ({
+  index,
+  parsedItem,
+  option,
+  poll,
+  counts,
+  handlePollResponse,
+  selectedOptions,
+}) => {
   return (
-    <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px', gap: '10px' }}>
-
+    <div
+      key={index}
+      style={{ display: 'flex', alignItems: 'center', marginBottom: '10px', gap: '10px' }}
+    >
       <input
         type="checkbox"
         id={`poll-${index}`}
         name={parsedItem.poll.pollID}
         value={option}
-        checked={parsedItem.poll.selectedOptions.some((item: any) => item.selectedOptions.option === option)}
+        checked={selectedOptions.some((item: any) => item.option === option)}
         onChange={() => handlePollResponse({ option }, poll)}
       />
 
       <div style={{ display: 'flex', flexDirection: 'column', flex: '1' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <label htmlFor={`poll-${index}`} style={{ fontWeight: 'bold' }}>
+        <div className="flex justify-between">
+          <label htmlFor={`poll-${index}`} className="font-bold">
             {option}
           </label>
-          <span style={{ fontWeight: 'bold' }}>{counts[option] || 0}</span>
+          <span className="font-bold">{counts[option] || 0}</span>
         </div>
-        <meter min="0" max="100" value={(counts[option] || 0) * 10} style={{ width: '100%', }} />
+        <meter min="0" max="100" value={(counts[option] || 0) * 10} className="w-full" />
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default PollItem;
