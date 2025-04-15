@@ -45,15 +45,15 @@ const ChatBar: FC<ChatBarProps> = ({
   };
 
   const data = chatData.map((conversation) => {
-    const receiverName: string = conversation.receiver.lastName
-      ? conversation.receiver.lastName // Receiver is a user
+    const receiverName: string = conversation.receiver.fullName
+      ? conversation.receiver.fullName // Receiver is a user
       : conversation.receiver.label; // Receiver is a group
-    const isReceiverAGroup = !conversation.receiver.lastName; // No lastName means it's a group
+    const isReceiverAGroup = !conversation.receiver.fullName; // No fullName means it's a group
     const content = conversation.lastMessage.content //no text message => possible attachment
       ? conversation.lastMessage.content
       : 'Attachment received';
     const receiverPic =
-      conversation.lastMessage.sender.lastName === userName
+      conversation.lastMessage.sender.fullName === userName
         ? conversation.lastMessage.receiverAvatar
         : conversation.lastMessage.senderAvatar; //receiver pic
 
@@ -61,14 +61,14 @@ const ChatBar: FC<ChatBarProps> = ({
       avatar: receiverPic || 'https://img.freepik.com/free-icon/user_318-804790.jpg', //avatar of the convo receiver
       title: isReceiverAGroup
         ? receiverName // Always show group name if the receiver is a group
-        : conversation.sender.lastName === userName
-          ? receiverName === conversation.sender.lastName
+        : conversation.sender.fullName === userName
+          ? receiverName === conversation.sender.fullName
             ? receiverName // If sender and receiver are the same
             : receiverName // Otherwise, just show the receiver
-          : conversation.sender.lastName, // Show sender's name when you're not the sender
+          : conversation.sender.fullName, // Show sender's name when you're not the sender
       conversationID: conversation.ID,
       subtitle: conversation.receiver.label
-        ? conversation.lastMessage.sender.lastName + ':' + content
+        ? conversation.lastMessage.sender.fullName + ':' + content
         : content,
       date: format(conversation.lastMessage.dateStamp),
       dateString: format(conversation.lastMessage.dateStamp),

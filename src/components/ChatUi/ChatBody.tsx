@@ -12,11 +12,11 @@ interface ChatBodyProps {
 
 const ChatBody: FC<ChatBodyProps> = ({ data, socket, userName }) => {
   data = data.map((item: any) => {
-    let isSender: any = item.sender.lastName === userName ? false : true;
+    let isSender: any = item.sender.fullName === userName ? false : true;
 
     if (
       item.content == '' &&
-      item.sender.lastName != '' &&
+      item.sender.fullName != '' &&
       !item.file &&
       !item.audio &&
       !item.image &&
@@ -29,7 +29,7 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket, userName }) => {
       return {
         type: 'text',
         text: item.content,
-        title: item.sender.lastName,
+        title: item.sender.fullName,
         date: format(item.dateStamp),
         dateString: format(item.dateStamp),
         position: isSender ? 'left' : 'right',
@@ -41,7 +41,7 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket, userName }) => {
       return {
         type: 'file',
         text: 'File attached',
-        title: item.sender.lastName,
+        title: item.sender.fullName,
         date: format(item.dateStamp),
         dateString: format(item.dateStamp),
         data: {
@@ -61,7 +61,7 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket, userName }) => {
     if (item.audio) {
       return {
         type: 'audio',
-        title: item.sender.lastName,
+        title: item.sender.fullName,
         data: {
           audioURL: item.audio,
           status: {
@@ -79,7 +79,7 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket, userName }) => {
     if (item.image) {
       return {
         type: 'photo',
-        title: item.sender.lastName,
+        title: item.sender.fullName,
         data: {
           uri: item.image,
           status: {
@@ -98,7 +98,7 @@ const ChatBody: FC<ChatBodyProps> = ({ data, socket, userName }) => {
       return {
         type: 'text',
         text: <PollHandler poll={item.poll} socket={socket} sender={item.sender} />,
-        title: item.sender.lastName,
+        title: item.sender.fullName,
         position: isSender ? 'left' : 'right',
         avatar: item.senderAvatar || 'https://img.freepik.com/free-icon/user_318-804790.jpg',
       };

@@ -12,18 +12,20 @@ const PollHandler: FC<PollProps> = ({ poll, socket, sender }) => {
 
   const handlePollResponse = (option: { option: string }, parsedItem: any) => {
     if (!parsedItem.pollID) return;
+    const currentVotes = pollResponses[parsedItem.pollID] || [];
+    const hasVoted = currentVotes.some((item: any) => item.option === option.option);
 
     setPollResponses((prev) => {
       const prevVotes = prev[parsedItem.pollID] || [];
-      const hasVoted = prevVotes.some((item: any) => item.option === option.option);
-
       let updatedVotes;
 
       if (parsedItem.allowMultiple) {
-        // If multiple selections are allowed, toggle the selected option
-        updatedVotes = [...prevVotes, option]; // Add vote
+        if (hasVoted) {
+          updatedVotes = prevVotes.filter((item: any) => item.option !== option.option);
+        } else {
+          updatedVotes = [...prevVotes, option];
+        }
       } else {
-        // If multiple selections are NOT allowed, replace previous selection with the new one
         updatedVotes = hasVoted ? [] : [option];
       }
 
@@ -34,7 +36,12 @@ const PollHandler: FC<PollProps> = ({ poll, socket, sender }) => {
     });
 
     if (socket) {
-      const pollData = { pollID: parsedItem.pollID, selectedOptions: option, sender: sender };
+      const pollData = {
+        pollID: parsedItem.pollID,
+        selectedOptions: option,
+        sender: sender,
+        action: hasVoted ? 'remove' : 'add',
+      };
       socket.send(JSON.stringify({ poll: pollData }));
     }
   };
