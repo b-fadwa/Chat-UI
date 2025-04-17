@@ -41,7 +41,7 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
 
   useEffect(() => {
     if (!currentUser || !socketAddress) return;
-    const socketUrl = `${socketAddress}?userName=${currentUser}`; //used for login purposes (get name from ds)
+    const socketUrl = `${socketAddress}/chatSocket?userName=${currentUser}`; //used for login purposes (get name from ds)
     const socket = new WebSocket(socketUrl);
     // const socket = new WebSocket(socketAddress);
     //testing purpose only
@@ -139,7 +139,7 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
       setSelectedReceiver(selectedUser);
       const filtered = messages.filter(
         (msg: any) =>
-          msg?.receiver?.lastName === selectedUser || msg?.receiver?.label === selectedUser,
+          msg?.receiver?.fullName === selectedUser || msg?.receiver?.label === selectedUser,
       );
       setFilteredMessages(filtered);
     }
