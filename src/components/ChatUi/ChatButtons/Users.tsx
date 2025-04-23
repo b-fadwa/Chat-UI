@@ -6,6 +6,7 @@ interface UsersBarProps {
   setSelectedUser: (user: any) => void;
   setShowUsers: (show: boolean) => void;
   setSelectedConversation: (conversation: any) => void;
+  displayAttribute: string;
 }
 
 const UsersBar: FC<UsersBarProps> = ({
@@ -13,11 +14,12 @@ const UsersBar: FC<UsersBarProps> = ({
   setSelectedUser,
   setShowUsers,
   setSelectedConversation,
+  displayAttribute,
 }) => {
   const data = allUsers.map((user) => {
     return {
       avatar: 'https://img.freepik.com/free-icon/user_318-804790.jpg', //to fix
-      title: user.fullName ? user.fullName : user.label,
+      title: user[displayAttribute] ? user[displayAttribute] : user.label,
       userID: user.ID,
       date: null,
     };

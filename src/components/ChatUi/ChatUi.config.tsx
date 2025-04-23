@@ -53,7 +53,7 @@ export default {
       },
     ],
     datasources: {
-      accept: ['string'],
+      accept: ['entity'],
     },
   },
   defaultProps: {
@@ -65,4 +65,5 @@ export default {
 
 export interface IChatUiProps extends webforms.ComponentProps {
   socketAddress: any;
+  displayAttribute: string;
 }
