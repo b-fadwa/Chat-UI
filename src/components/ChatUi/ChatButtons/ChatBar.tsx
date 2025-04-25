@@ -10,6 +10,7 @@ interface ChatBarProps {
   setSelectedUser: (user: any) => void;
   userName: string;
   socket: any;
+  displayAttribute: string;
 }
 
 const ChatBar: FC<ChatBarProps> = ({
@@ -19,6 +20,7 @@ const ChatBar: FC<ChatBarProps> = ({
   setSelectedUser,
   userName,
   socket,
+  displayAttribute,
 }) => {
   const [showUsers, setShowUsers] = useState(false);
   const [chatData, setChatData] = useState(conversations);
@@ -45,15 +47,15 @@ const ChatBar: FC<ChatBarProps> = ({
   };
 
   const data = chatData.map((conversation) => {
-    const receiverName: string = conversation.receiver.fullName
-      ? conversation.receiver.fullName // Receiver is a user
+    const receiverName: string = conversation.receiver[displayAttribute]
+      ? conversation.receiver[displayAttribute] // Receiver is a user
       : conversation.receiver.label; // Receiver is a group
-    const isReceiverAGroup = !conversation.receiver.fullName; // No fullName means it's a group
+    const isReceiverAGroup = !conversation.receiver[displayAttribute]; // No fullName means it's a group
     const content = conversation.lastMessage.content //no text message => possible attachment
       ? conversation.lastMessage.content
       : 'Attachment received';
     const receiverPic =
-      conversation.lastMessage.sender.fullName === userName
+      conversation.lastMessage.sender[displayAttribute] === userName
         ? conversation.lastMessage.receiverAvatar
         : conversation.lastMessage.senderAvatar; //receiver pic
 
@@ -61,14 +63,14 @@ const ChatBar: FC<ChatBarProps> = ({
       avatar: receiverPic || 'https://img.freepik.com/free-icon/user_318-804790.jpg', //avatar of the convo receiver
       title: isReceiverAGroup
         ? receiverName // Always show group name if the receiver is a group
-        : conversation.sender.fullName === userName
-          ? receiverName === conversation.sender.fullName
+        : conversation.sender[displayAttribute] === userName
+          ? receiverName === conversation.sender[displayAttribute]
             ? receiverName // If sender and receiver are the same
             : receiverName // Otherwise, just show the receiver
-          : conversation.sender.fullName, // Show sender's name when you're not the sender
+          : conversation.sender[displayAttribute], // Show sender's name when you're not the sender
       conversationID: conversation.ID,
       subtitle: conversation.receiver.label
-        ? conversation.lastMessage.sender.fullName + ':' + content
+        ? conversation.lastMessage.sender[displayAttribute] + ':' + content
         : content,
       date: format(conversation.lastMessage.dateStamp),
       dateString: format(conversation.lastMessage.dateStamp),
@@ -89,6 +91,7 @@ const ChatBar: FC<ChatBarProps> = ({
             }}
             setShowUsers={setShowUsers}
             setSelectedConversation={setSelectedConversation}
+            displayAttribute={displayAttribute}
           />
         ) : data.length === 0 ? (
           <p className="text-gray-500 text-center">Start a conversation to see messages here.</p>

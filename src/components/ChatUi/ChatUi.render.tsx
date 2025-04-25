@@ -9,7 +9,13 @@ import PollModal from './ChatButtons/Poll';
 import { getRandomId } from '@ws-ui/craftjs-utils';
 import ChatBar from './ChatButtons/ChatBar';
 
-const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames = [] }) => {
+const ChatUi: FC<IChatUiProps> = ({
+  socketAddress,
+  displayAttribute,
+  style,
+  className,
+  classNames = [],
+}) => {
   const { connect } = useRenderer();
   const [socket, setSocket] = useState<any>();
   const [messages, setMessages] = useState<any>([]);
@@ -21,7 +27,7 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [selectedConversation, setSelectedConversation] = useState<any>(null);
   const [selectedReceiver, setSelectedReceiver] = useState<any>(null);
-  const [currentUser, setCurrentUser] = useState<string>(''); //name of the connected user
+  const [currentUser, setCurrentUser] = useState<any>(); //the connected user
   const {
     sources: { datasource: ds },
   } = useSources();
@@ -40,9 +46,14 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
   }, []);
 
   useEffect(() => {
-    if (!currentUser || !socketAddress) return;
-    const socketUrl = `${socketAddress}/chatSocket?userName=${currentUser}`; //used for login purposes (get name from ds)
+    if (!currentUser || !socketAddress || !displayAttribute) return;
+    const socketUrl = `${socketAddress}/chatSocket?userName=${currentUser[displayAttribute]}`; //used for login purposes (get name from ds)
     const socket = new WebSocket(socketUrl);
+
+    setMessages([]);
+    setFilteredMessages([]);
+    setUsers([]);
+    setConversations([]);
     // const socket = new WebSocket(socketAddress);
     //testing purpose only
     if (socket.readyState === WebSocket.OPEN) {
@@ -103,7 +114,7 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
         socket.close();
       }
     };
-  }, [socketAddress, currentUser]);
+  }, [socketAddress, currentUser, displayAttribute]);
 
   const handlePollSubmit = (poll: {
     pollID: number;
@@ -139,7 +150,8 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
       setSelectedReceiver(selectedUser);
       const filtered = messages.filter(
         (msg: any) =>
-          msg?.receiver?.fullName === selectedUser || msg?.receiver?.label === selectedUser,
+          msg?.receiver[displayAttribute] === selectedUser[displayAttribute] ||
+          msg?.receiver?.label === selectedUser.label,
       );
       setFilteredMessages(filtered);
     }
@@ -154,8 +166,9 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
             conversations={conversations}
             setSelectedUser={setSelectedUser}
             allUsers={users}
-            userName={currentUser}
+            userName={currentUser?.[displayAttribute]}
             socket={socket}
+            displayAttribute={displayAttribute}
           />
         </div>
         <div className="chat-right-panel flex flex-col w-3/4 p-2">
@@ -164,7 +177,8 @@ const ChatUi: FC<IChatUiProps> = ({ socketAddress, style, className, classNames 
             data={filteredMessages}
             socket={socket}
             pollID={pollID}
-            userName={currentUser}
+            userName={currentUser?.[displayAttribute]}
+            displayAttribute={displayAttribute}
           />
           <ChatFooter
             socket={socket}

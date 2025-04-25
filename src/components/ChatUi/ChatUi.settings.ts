@@ -10,6 +10,25 @@ const commonSettings: TSetting[] = [
   },
 ];
 
+const dataAccessSettings: TSetting[] = [
+  {
+    key: 'datasource',
+    label: 'Qodly Source',
+    type: ESetting.DS_AUTO_SUGGEST,
+  },
+  {
+    key: 'displayAttribute',
+    label: 'Display Attribute',
+    type: ESetting.DS_AUTO_SUGGEST,
+  },
+  {
+    key: 'serverSideRef',
+    label: 'Server Side',
+    type: ESetting.TEXT_FIELD,
+    validateOnEnter: true,
+  },
+];
+
 const Settings: TSetting[] = [
   {
     key: 'properties',
@@ -17,7 +36,13 @@ const Settings: TSetting[] = [
     type: ESetting.GROUP,
     components: commonSettings,
   },
-  ...DEFAULT_SETTINGS,
+  {
+    key: 'dataAccess',
+    label: 'Data Access',
+    type: ESetting.GROUP,
+    components: dataAccessSettings,
+  },
+  ...load(DEFAULT_SETTINGS).filter('dataAccess'),
 ];
 
 export const BasicSettings: TSetting[] = [
