@@ -53,13 +53,17 @@ export default {
       },
     ],
     datasources: {
-      accept: ['string'],
+      accept: ['entity'],
     },
   },
-  defaultProps: {},
+  defaultProps: {
+    style: {
+      height: '400px',
+    },
+  },
 } as T4DComponentConfig<IChatUiProps>;
 
 export interface IChatUiProps extends webforms.ComponentProps {
-  position: string;
   socketAddress: any;
+  displayAttribute: string;
 }

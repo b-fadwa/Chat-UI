@@ -3,16 +3,29 @@ import { BASIC_SETTINGS, DEFAULT_SETTINGS, load } from '@ws-ui/webform-editor';
 
 const commonSettings: TSetting[] = [
   {
-    key: 'position',
-    label: 'Position',
-    type: ESetting.TEXT_FIELD,
-    defaultValue: 'left',
-  },
-  {
     key: 'socketAddress',
     label: 'Socket Address',
     type: ESetting.TEXT_FIELD,
     defaultValue: '',
+  },
+];
+
+const dataAccessSettings: TSetting[] = [
+  {
+    key: 'datasource',
+    label: 'Qodly Source',
+    type: ESetting.DS_AUTO_SUGGEST,
+  },
+  {
+    key: 'displayAttribute',
+    label: 'Display Attribute',
+    type: ESetting.DS_AUTO_SUGGEST,
+  },
+  {
+    key: 'serverSideRef',
+    label: 'Server Side',
+    type: ESetting.TEXT_FIELD,
+    validateOnEnter: true,
   },
 ];
 
@@ -23,7 +36,13 @@ const Settings: TSetting[] = [
     type: ESetting.GROUP,
     components: commonSettings,
   },
-  ...DEFAULT_SETTINGS,
+  {
+    key: 'dataAccess',
+    label: 'Data Access',
+    type: ESetting.GROUP,
+    components: dataAccessSettings,
+  },
+  ...load(DEFAULT_SETTINGS).filter('dataAccess'),
 ];
 
 export const BasicSettings: TSetting[] = [

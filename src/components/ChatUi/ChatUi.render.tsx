@@ -1,68 +1,201 @@
-import { useRenderer } from '@ws-ui/webform-editor';
+import { useRenderer, useSources } from '@ws-ui/webform-editor';
 import cn from 'classnames';
 import { FC, useEffect, useState } from 'react';
 
 import { IChatUiProps } from './ChatUi.config';
-import ChatHeader from './ChatHeader';
 import ChatBody from './ChatBody';
 import ChatFooter from './ChatFooter';
+import PollModal from './ChatButtons/Poll';
+import { getRandomId } from '@ws-ui/craftjs-utils';
+import ChatBar from './ChatButtons/ChatBar';
 
 const ChatUi: FC<IChatUiProps> = ({
   socketAddress,
-  position,
+  displayAttribute,
   style,
   className,
   classNames = [],
 }) => {
   const { connect } = useRenderer();
-  const [value, setValue] = useState<any>();
-
-  const [message, setMessage] = useState(null);
-  const [connectionStatus, setConnectionStatus] = useState('Connecting...');
+  const [socket, setSocket] = useState<any>();
+  const [messages, setMessages] = useState<any>([]);
+  const [filteredMessages, setFilteredMessages] = useState<any>([]);
+  const [conversations, setConversations] = useState<any>([]);
+  const [showPollModal, setShowPollModal] = useState(false);
+  const [pollID, setPollID] = useState<any>(getRandomId(50));
+  const [users, setUsers] = useState<any>([]);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [selectedConversation, setSelectedConversation] = useState<any>(null);
+  const [selectedReceiver, setSelectedReceiver] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<any>(); //the connected user
+  const {
+    sources: { datasource: ds },
+  } = useSources();
 
   useEffect(() => {
-    if (!socketAddress && socketAddress !== '') return;
-    // Create a WebSocket connection
-    const socket = new WebSocket(socketAddress);
-    socket.onopen = () => {
-      setConnectionStatus('Connected');
-      console.log('WebSocket connection established');
-      setValue(socket);
+    if (!ds) return;
+    const listener = async (/* event */) => {
+      const v = await ds.getValue();
+      setCurrentUser(v);
     };
+    listener();
+    ds.addListener('changed', listener);
+    return () => {
+      ds.removeListener('changed', listener);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!currentUser || !socketAddress || !displayAttribute) return;
+    const socketUrl = `${socketAddress}/chatSocket?userName=${currentUser[displayAttribute]}`; //used for login purposes (get name from ds)
+    const socket = new WebSocket(socketUrl);
+
+    setMessages([]);
+    setFilteredMessages([]);
+    setUsers([]);
+    setConversations([]);
+    // const socket = new WebSocket(socketAddress);
+    //testing purpose only
+    if (socket.readyState === WebSocket.OPEN) {
+      console.log('WebSocket is alive and open.');
+    } else {
+      console.log('WebSocket is not open. Current state:', socket.readyState);
+    }
+
+    socket.onopen = () => {
+      console.log('WebSocket connection established');
+      setSocket(socket);
+    };
+
     socket.onmessage = (event) => {
-      setMessage((prev) => prev + event.data);
+      const receivedMessages = event.data.split('\n').filter((msg: any) => msg.trim() !== '');
+      const parsedMessages = receivedMessages.map((msg: any) => JSON.parse(msg));
+      setMessages((prevMessages: any[]) => [...prevMessages, ...parsedMessages]);
+      setFilteredMessages((prevMessages: any[]) => [...prevMessages, ...parsedMessages]);
+      const usersArray = parsedMessages.flatMap((message: any) => message.users || []);
+      const groups = parsedMessages.flatMap((message: any) => message.groups || []);
+      setUsers((prevUsers: any[]) => [...prevUsers, ...usersArray, ...groups]);
+      //n messages -> n-m convos
+      // Store unique conversations
+      // once a new message is receievd, the last message should be updated in the chatBar
+      setConversations((prevConversations: any[]) => {
+        const newConversations = new Map(prevConversations.map((conv) => [conv.ID, conv]));
+        parsedMessages.forEach((msg: any) => {
+          if (!msg.conversation) return;
+          const conversationID = msg.conversation.ID;
+          if (newConversations.has(conversationID)) {
+            newConversations.set(conversationID, {
+              ...newConversations.get(conversationID),
+              lastMessage: msg,
+            });
+          } else {
+            newConversations.set(conversationID, {
+              ...msg.conversation,
+              sender: msg.sender,
+              receiver: msg.receiver,
+              lastMessage: msg,
+            });
+          }
+        });
+        return Array.from(newConversations.values());
+      });
     };
 
     socket.onclose = () => {
-      setConnectionStatus('Disconnected');
       console.log('WebSocket connection closed');
     };
-
     // Event listener for errors
     socket.onerror = (error) => {
       console.error('WebSocket error', error);
     };
-
-    const getMessage = () => {
-      socket.addEventListener('message', (event) => {});
-    };
-
-    getMessage();
-
-    // Cleanup on component unmount
+    //close socket
     return () => {
-      socket.removeEventListener('message', getMessage);
-      socket.close();
+      if (socket.readyState !== WebSocket.CLOSED) {
+        socket.close();
+      }
     };
-  }, [socketAddress]);
+  }, [socketAddress, currentUser, displayAttribute]);
+
+  const handlePollSubmit = (poll: {
+    pollID: number;
+    question: string;
+    options: string[];
+    allowMultiple: boolean;
+    selectedOptions: object;
+  }) => {
+    const pollMessage = {
+      pollID: poll.pollID,
+      question: poll.question,
+      options: poll.options,
+      allowMultiple: poll.allowMultiple,
+      selectedOptions: poll.selectedOptions,
+    };
+    socket.send(JSON.stringify({ poll: pollMessage, receiver: selectedReceiver }));
+  };
+
+  //get messages by convo id
+  useEffect(() => {
+    if (!selectedConversation && !selectedUser) {
+      setFilteredMessages([]);
+      return;
+    }
+
+    if (selectedConversation) {
+      setSelectedReceiver(selectedConversation.title);
+      const filtered = messages.filter(
+        (msg: any) => msg.conversation?.ID === selectedConversation.conversationID,
+      );
+      setFilteredMessages(filtered);
+    } else if (selectedUser) {
+      setSelectedReceiver(selectedUser);
+      const filtered = messages.filter(
+        (msg: any) =>
+          msg?.receiver[displayAttribute] === selectedUser[displayAttribute] ||
+          msg?.receiver?.label === selectedUser.label,
+      );
+      setFilteredMessages(filtered);
+    }
+  }, [selectedConversation, messages, selectedUser]);
 
   return (
     <div ref={connect} style={style} className={cn(className, classNames)}>
-      <ChatHeader />
-      <ChatBody key={message} position={position} data={message} />
-      <ChatFooter />
-      <button onClick={() => value.send('Hello Qodly')}>Send</button>
-      {message}
+      <div className="chat-container flex flex-row gap-2 w-full h-full min-w-fit border-2">
+        <div className="chat-left-panel flex flex-col w-1/4 border-r-2">
+          <ChatBar
+            setSelectedConversation={setSelectedConversation}
+            conversations={conversations}
+            setSelectedUser={setSelectedUser}
+            allUsers={users}
+            userName={currentUser?.[displayAttribute]}
+            socket={socket}
+            displayAttribute={displayAttribute}
+          />
+        </div>
+        <div className="chat-right-panel flex flex-col w-3/4 p-2">
+          <ChatBody
+            key={filteredMessages.length}
+            data={filteredMessages}
+            socket={socket}
+            pollID={pollID}
+            userName={currentUser?.[displayAttribute]}
+            displayAttribute={displayAttribute}
+          />
+          <ChatFooter
+            socket={socket}
+            onPollClick={() => setShowPollModal(true)}
+            selectedReceiver={selectedReceiver}
+          />
+        </div>
+        <PollModal
+          isOpen={showPollModal}
+          onClose={() => setShowPollModal(false)}
+          onSubmit={(poll) => {
+            handlePollSubmit(poll);
+            setPollID(pollID);
+          }}
+          pollID={pollID}
+        />
+      </div>
     </div>
   );
 };
